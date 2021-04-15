@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://kit.fontawesome.com/0159277acf.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.4.3/build/ol.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.4.3/css/ol.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./libs/v6.4.3-dist/ol.css">
+    <link rel="stylesheet" href="./styles.css">
+    <title>Document</title>
+</head>
+<body>
+
+    <main class="main">
+      <div></div><canvas id="video-canvas" width="640" height="360"></canvas></div>     
+       <div id="contener">
+        <!-- <div class='a0'> -->
+        <aside id = 'fix-dix'>
+          <img class="main-logo" src="http://penguinin.com/penguinin.com/wp-content/uploads/2018/05/logo.png" alt="Img Not Found">
+          <div class="addUrLogo">
+            <p><i class="far fa-plus-square fa-lg"></i> Add your logo</p>
+          </div>
+          <nav class="aside-nav">
+            <a class="aside-nav-a" href=""><i class="fas fa-th-large"></i> Dashboards</a>
+            <a class="aside-nav-a" href=""><i class="fas fa-landmark"></i></i> Venues</a>
+            <a class="aside-nav-a" href=""><i class="fas fa-layer-group"></i> Floors</a>
+            <a class="aside-nav-a" href=""><i class="fas fa-broadcast-tower"></i> Gateways</a>
+            <a class="aside-nav-a" href=""><i class="fas fa-wifi fa-rotate-90"></i> Beacons</a>
+            <a class="aside-nav-a" href=""><i class="fas fa-tags"></i> Tags</a>
+            <a class="aside-nav-a" href=""><i class="fas fa-map-marker"></i> POIs</a>
+            <a class="aside-nav-a" href=""><i class="fas fa-ad"></i> Campaigns</a>
+            <a class="aside-nav-a" href=""><i class="fas fa-network-wired"></i> Departments</a>
+            <a class="aside-nav-a" href=""><i class="fas fa-users"></i> People</a>
+            <a class="aside-nav-a" href=""><i class="fas fa-briefcase"></i> Assets</a>
+            <a class="aside-nav-a" href=""><i class="fas fa-clipboard-list"></i> Intelligence</a>
+            <a class="aside-nav-a" href=""><i class="fas fa-bell"></i> Notifications</a>
+            <a class="aside-nav-a" href=""><i class="fas fa-cog"></i> Settings</a>
+          </nav>
+        </aside>
+        <!-- </div> -->
+        <div id ='home-flow'>
+          <div class="topnav" id="myTopnav">
+            <div><div class='ibar'><i class="fas fa-bars"></i></div>
+            <a class="search" href="#news">Search for something...</a>
+          </div>
+          <div class="header-left">
+            <button class="Venue-btn">Venue: PenguinIn</button>
+            <i class="far fa-bell"></i>
+            <i class="fas fa-sign-out-alt"></i>
+            <p>Logout</p>
+          </div>
+
+          </div>
+          <div id ='Dashboards'>
+            <h4 class="h4">Dashboards</h4>
+          </div>
+          <div class="sub1">
+            
+            <div class='a1'>
+              <div class="chart-group-1">
+                <div class="a1Head">
+                   <h2 class="h2">Weekly Traffic Distribution:</h2>   
+                </div>
+                <hr  class="theLine" style="width: 100%;display: block; height: 1px;
+                border: 0; border-top: 1px solid #e7eaec;">
+                <div id="my_dataviz"></div>
+              </div>
+              <div class="chart-group-1">
+                <div class="a1Head">
+                  <h2 class="h2">Number Of Visitors</h2>
+                  
+               </div>    
+                <hr class="theLine" >  
+               <div class="chart1">                         
+                <canvas  id="f2" class="chat2"></canvas>
+                </div> 
+              </div>
+            </div>
+            <div class='a2'>
+              <div class="chart-group-2">
+                <div class="a1Head">
+                  <h2 class="h2">Most Viewed Ads</h2>
+                  
+               </div>
+                <hr class="theLine" ">
+               <div class="chart2">
+                <canvas id="f3" class="chat2"></canvas>
+                </div>
+              </div>
+              <div class="chart-group-2">
+                <div class="a1Head">
+                  <h2 class="h2">Appointments</h2>
+                  
+               </div>
+                <hr class="theLine" ">
+               <div  class="chartdonut">
+                <div class ="donut1"><canvas id="f4" class="chat2"></canvas></div>              
+                <div class ="donut2"><canvas id="f7" class="chat2"></canvas></div>
+                <div class ="donut3"><canvas id="f8" class="chat2"></canvas></div>
+                
+                </div>
+              </div>
+              <div class="chart-group-2">
+                <div class="a1Head">
+                  <h2 class="h2">Parking</h2>
+                  
+               </div>
+                <hr class="theLine" ">
+               <div class="chart2">
+                <canvas id="histogram" class="chat2"></canvas>
+                </div>
+              </div>
+            </div> 
+        </div>
+        <!-- <div class="f6" id="map" class="map">          
+          <canvas id="f6" width="400" height="100"></canvas>
+        </div> -->
+        <div id = 'out-map' class="f6 map">
+          <div id="map" class="map"></div>
+        </div>
+       </div>
+      </div>
+    </main>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=Array.from,Promise,Symbol,Object.setPrototypeOf,Object.getOwnPropertySymbols,Set"></script>
+    <script src="https://cdn.jsdelivr.net/npm/superagent"></script>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://unpkg.com/elm-pep"></script>    
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.6.2/proj4.min.js"></script>
+    <script src="./libs/v6.4.3-dist/ol.js"></script> 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-treemap@0.2.3"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.9.7/src/index.min.js"></script> -->
+    <script src="jsmpeg.js"></script>
+    <!-- <script src="jsmpeg.min.js"></script> -->
+    <!-- <script src="./chart.js"></script>  -->
+
+    <script type="text/javascript" src="jsmpeg.min.js"></script>
+    <script type="text/javascript">
+      var canvas = document.getElementById('video-canvas');
+      var url = 'ws://'+document.location.hostname+':9999/';
+      var player = new JSMpeg.Player(url, {canvas: canvas});
+    </script>
+    <!-- <script type="text/javascript">
+      var canvas = document.getElementById('videoCanvas');
+      var ws = new WebSocket("ws://localhost:9999")
+      console.log("wswsws",ws)
+      var player = new jsmpeg(ws, {canvas:canvas, autoplay:true,audio:true,loop: true });
+    </script> -->
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.4.3/build/ol.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.4.3/css/ol.css">
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../libs/v6.4.3-dist/ol.css">
+    <title>Document</title>
+</head>
+<body>
+    <header>
+        <h1>Welcome to my chart</h1>
+    </header>
+    <main>
+
+        <div>
+            <input type='hidden' id = 'names' value='<%=names%>' >
+            <input type='hidden' id = 'attend' value='<%=attend%>'>
+        <canvas id="myChart" ></canvas>
+        
+        <!-- <form class="form-inline">
+            <label for="epsg-query">Search projection:</label>
+            <input type="text" id="epsg-query" placeholder="4326, 27700, 3031, US National Atlas, Swiss, France, ..." class="form-control" size="50" />
+            <button id="epsg-search" class="btn">Search</button>
+            <span id="epsg-result"></span>
+            <div class="grid-container">
+                <div class="grid-1"><
+                    <div class="sidebar">
+                        <h2>Base Layers</h2>
+                        <input type="radio" name="radio" value="Standard-Layers" checked>Standard Layers<br>
+                        <input type="radio" name="radio" value="First-Layer" >First Layer<br>
+                        <input type="radio" name="radio" value="Sec-Layer" >Sec Layer<br>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div id="js-map" class="map"></div>
+                </div> -->
+                <div id = 'out-map' class="map">
+                  <div id="map" class="map"></div>
+                </div>
+                <form class="form-inline">
+                  <label for="epsg-query">Search projection:</label>
+                  <input type="text" id="epsg-query" placeholder="4326, 27700, 3031, US National Atlas, Swiss, France, ..." class="form-control" size="50" />
+                  <button id="epsg-search" class="btn">Search</button>
+                  <span id="epsg-result"></span>
+                    <div class="grid-1">
+                        <div class="sidebar">
+                            <h2>Base Layers</h2>
+                            <input type="radio" name="radio" value="First-Layer" checked>First Layer<br>
+                            <input type="radio" name="radio" value="Standard-Layers" >Standard Layers<br>
+                            <input type="radio" name="radio" value="Sec-Layer" >Sec Layer<br>
+                        </div>
+                        <br>
+                    </div>
+                </form>
+                <div style="display: none;" id = 'all-checkbox'>
+                    <h2>Render reprojection edges & Show graticule</h2>
+                    <label for="render-edges">
+                      Render reprojection edges
+                      <input type="checkbox" id="render-edges">
+                    </label>
+                    <label for="show-graticule">
+                      &nbsp;&nbsp;&nbsp;Show graticule
+                      <input type="checkbox" id="show-graticule" />
+                    </label>
+                  </div>
+                </div>
+        </div>
+    </main>
+    <script>
+    var names = document.getElementById('names').value
+    var attend = document.getElementById('attend').value
+    var ctx = document.getElementById('myChart').getContext('2d');
+            var myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: names.split(','),
+                    datasets: [{
+                        label: 'Attendance',
+                        data: attend.split(','),
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(255, 159, 64, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ],
+                        borderWidth: 1,
+                        hoverBorderWidth:3,
+                        hoverBorderColor:'#000'
+                    }]
+                },
+                options: {
+                    title:{
+                        display:true,
+                        text:'Attendace Chart',
+                        fontSize:25,
+                    },
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                }
+            });
+    </script>
+    <footer></footer>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.6.2/proj4.min.js"></script>
+    <script src="../libs/v6.4.3-dist/ol.js"></script> 
+    <script src="https://unpkg.com/elm-pep"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.9.7/src/index.min.js"></script>
+    <script src="jsmpeg.min.js"></script>
+
+    <script src="../chart.js"></script> 
+    <script src="../main.js"></script> 
+</body>
+</html>

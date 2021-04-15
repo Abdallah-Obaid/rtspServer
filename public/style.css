@@ -1,0 +1,22 @@
+*{
+    width: 100%;
+}
+#myChart{
+    width: 100px;
+
+}
+main{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+div{
+        width: 50%;
+}
+
+h1{
+    color: rgb(204, 204, 204);
+}
+header{
+    background-color: cornflowerblue;
+}
