@@ -1,7 +1,6 @@
 'use strict';
 
 // Load environment variables from .env
-var mqtt  = require('mqtt');
 require('dotenv').config();
 // Application dependencies
 const express = require('express');
@@ -78,6 +77,17 @@ var stream = new Stream({
 //   });
 // }, 5000);
 server.get('/',(request,response) => {
+  var Stream = require('node-rtsp-stream');
+var stream = new Stream({
+  name: 'name',
+  streamUrl: 'rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov',//'rtsp://192.168.128.2:9000/live'
+  wsPort: 9999,
+  ffmpegOptions: { // options ffmpeg flags
+    '-stats': '', // an option with no neccessary value uses a blank string
+    '-r': 30 ,// options with required values specify the value after the key
+    // '-bufsize': '1M' ,
+  },
+});
     response.send('IT WORK');
 });
 // server.get('/', (req,res)=>{
