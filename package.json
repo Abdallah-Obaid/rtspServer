@@ -1,5 +1,5 @@
 {
-  "name": "PenguinIN-Dashboard",
+  "name": "rtspServer",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
@@ -9,15 +9,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Abdallah-Obaid/PenguinIN-Dashboard.git"
+    "url": "git+https://github.com/Abdallah-Obaid/rtspServer.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Abdallah-Obaid/PenguinIN-Dashboard/issues"
+    "url": "https://github.com/Abdallah-Obaid/rtspServer/issues"
   },
-  "homepage": "https://github.com/Abdallah-Obaid/PenguinIN-Dashboard#readme",
+  "homepage": "https://github.com/Abdallah-Obaid/rtspServer#readme",
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
