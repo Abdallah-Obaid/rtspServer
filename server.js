@@ -17,7 +17,7 @@ server.use(express.static('./public'));
 var Stream = require('node-rtsp-stream');
 var stream = new Stream({
   name: 'name',
-  streamUrl: 'rtsp://192.168.128.2:9000/live',//'rtsp://192.168.128.2:9000/live'
+  streamUrl: 'rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov',//'rtsp://192.168.128.2:9000/live'
   wsPort: 9999,
   ffmpegOptions: { // options ffmpeg flags
     '-stats': '', // an option with no neccessary value uses a blank string
@@ -102,7 +102,7 @@ var stream = new Stream({
 
 console.log('try to connect');
 
-  server.listen(PORT, () => console.log(`App is listening on ${PORT}`))
+  server.listen(PORT || 4000, () => console.log(`App is listening on ${PORT || 4000}`))
 
 
 server.use('*',(req,res)=>{
