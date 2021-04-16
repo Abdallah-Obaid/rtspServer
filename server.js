@@ -77,9 +77,9 @@ var stream = new Stream({
 //     console.log('Image Captured');
 //   });
 // }, 5000);
-// server.get('/',(request,response) => {
-//     response.send('IT WORK');
-// });
+server.get('/',(request,response) => {
+    response.send('IT WORK');
+});
 // server.get('/', (req,res)=>{
 //   client.query('select * from tblads')
 //     .then((results)=> {console.table(results.rows);var names=[];var attend=[];console.log('any thing'); results.rows.forEach((ele)=>{names.push(ele.first_name);attend.push(ele.attendance);});   res.render('./index',{names:names,attend:attend });
