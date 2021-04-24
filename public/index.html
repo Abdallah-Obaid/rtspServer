@@ -16,6 +16,7 @@
     <script src="https://polyfill.io/v3/polyfill.min.js?features=Array.from,Promise,Symbol,Object.setPrototypeOf,Object.getOwnPropertySymbols,Set"></script>
     <script src="https://cdn.jsdelivr.net/npm/superagent"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.6.2/proj4.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="jsmpeg.js"></script>
 
 
@@ -23,8 +24,17 @@
     <script type="text/javascript">
       var canvas = document.getElementById('video-canvas');
       var url = 'ws://'+document.location.hostname+':9999/';
-      var player = new JSMpeg.Player(url, {canvas: canvas});
-      
+      var player = new JSMpeg.Player(url, {canvas: canvas, });
+      $('#video-canvas').on('click',()=>{
+        console.log(player)
+        if(player.isPlaying){
+          player.pause()
+        }else{
+          player.play()
+        }
+
+      })
+
     </script>
     <!-- <script type="text/javascript">
       var canvas = document.getElementById('videoCanvas');
