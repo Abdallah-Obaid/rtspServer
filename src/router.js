@@ -10,11 +10,11 @@ var Stream = require('./lib/videoStream');
 router.get('/loadRtspStream', loadRtspStream);
 
 // Fibaro routs
-router.get('/getTemperature', getTemperature);
-router.get('/getSmoke', getSmoke);
-router.get('/getPowerConsumption', getPowerConsumption);
-router.get('/checkSwitchStatus', checkSwitchStatus);
-router.post('/postPowerSwitch', postPowerSwitch);
+router.get('/getTemperature/', getTemperature);
+router.get('/getSmoke/', getSmoke);
+router.get('/getPowerConsumption/', getPowerConsumption);
+router.get('/checkSwitchStatus/', checkSwitchStatus);
+router.post('/postPowerSwitch/', postPowerSwitch);
 
 
 // Meraki routs
@@ -42,7 +42,7 @@ async function loadRtspStream(req, res, next)
 {
   var stream = new Stream({
     name: 'name',
-    streamUrl: `rtsp://${CAMERAIP}:${CAMERAPORT}/live`,//`rtsp://${cameraIp}:${cameraPort}/live`,//'rtsp://192.168.128.2:9000/live'
+    streamUrl: `rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov`,//`rtsp://${cameraIp}:${cameraPort}/live`,//'rtsp://192.168.128.2:9000/live'
     wsPort: 9999,
     ffmpegOptions: { // options ffmpeg flags
   
@@ -50,25 +50,15 @@ async function loadRtspStream(req, res, next)
       '-reconnect_at_eof' : '1',
       '-reconnect_streamed' : '1',
       '-reconnect_delay_max' : 4000,
-      // '-timeout' : 1000000,
       '-stats': '', // an option with no neccessary value uses a blank string
       '-r': 25,// options with required values specify the value after the key
-      // '-vf':'mpdecivfrmate',
-      // '-vsync':'vfr',
-      
-      // 'timelimit':30000,
       '-bufsize': '420p' ,
-      //'-loglevel':'8',
       '-rtsp_transport' : 'tcp',
       '-max_delay': 0,
-      // '-listen_timeout':4000,
-  
-      //  '-debug_ts':'',
-      //  '-xerror':'',
   
     },
   });
-  var refreshTime = 7; // will be multiplied by 2 sec 
+  var refreshTime = 10; // will be multiplied by 2 sec 
   setInterval(async () => {
     console.log('##########',modulecount.count3());
     if (modulecount.count3()==refreshTime){
@@ -104,8 +94,8 @@ async function loadRtspStream(req, res, next)
  */
 async function getTemperature(req, res, next)
 {
-  var tempDeviceID = 31; 
-  superagent.get(`http://${IP_ADDRESS_FOR_FIBARO_SENSORS}/api/devices/${ tempDeviceID}`)
+  var tempDeviceID = req.query.deviceID; 
+  superagent.get(`http://${IP_ADDRESS_FOR_FIBARO_SENSORS}/api/devices/${tempDeviceID}`)
     .set('Content-Type', 'application/x-www-form-urlencoded')
     .auth(FIBARO_USER_NAME, FIBARO_PASSWORD)
     .then(TempData => {
@@ -127,7 +117,7 @@ async function getTemperature(req, res, next)
  */
 async function getSmoke(req, res, next)
 {
-  var smokeDeviceID = 31; 
+  var smokeDeviceID = req.query.deviceID; 
   superagent.get(`http://${IP_ADDRESS_FOR_FIBARO_SENSORS}/api/devices/${ smokeDeviceID}`)
     .set('Content-Type', 'application/x-www-form-urlencoded')
     .auth(FIBARO_USER_NAME, FIBARO_PASSWORD)
@@ -150,7 +140,7 @@ async function getSmoke(req, res, next)
  */
 async function getPowerConsumption(req, res, next)
 {
-  var powerDeviceID = 11; 
+  var powerDeviceID = req.query.deviceID; 
   superagent.get(`http://${IP_ADDRESS_FOR_FIBARO_SENSORS}/api/energy/now-100000/now/summary-graph/devices/energy/${ powerDeviceID}`)
     .set('Content-Type', 'application/x-www-form-urlencoded')
     .auth(FIBARO_USER_NAME, FIBARO_PASSWORD)
@@ -173,7 +163,7 @@ async function getPowerConsumption(req, res, next)
  */
 async function checkSwitchStatus(req, res, next)
 {
-  var CheckSwitchStatusID = 11;
+  var CheckSwitchStatusID = req.query.deviceID;
   superagent.get(`http://${IP_ADDRESS_FOR_FIBARO_SENSORS}/api/devices/${ CheckSwitchStatusID }`)
     .set('Content-Type', 'application/x-www-form-urlencoded')
     .auth(FIBARO_USER_NAME, FIBARO_PASSWORD)
@@ -196,8 +186,8 @@ async function checkSwitchStatus(req, res, next)
  */
 async function postPowerSwitch(req, res, next)
 {
-  var PostPowerSwitchID = 11;
-  var actionName ='turnOn';
+  var PostPowerSwitchID = req.query.deviceID;
+  var actionName =req.query.actionName;
   superagent.post(`http://${IP_ADDRESS_FOR_FIBARO_SENSORS}/api/devices/${ PostPowerSwitchID }/action/${actionName}`)
     .set('Content-Type', 'application/x-www-form-urlencoded')
     .auth(FIBARO_USER_NAME, FIBARO_PASSWORD)
@@ -220,13 +210,13 @@ async function postPowerSwitch(req, res, next)
  */
 async function getHumidity(req, res, next)
 {
-  var getHumidityID = 'Q3CA-2DY2-LG4W';
-  var networkID ='L_676102894059002113';
-  superagent.get(`https://api.meraki.com/api/v1/networks/${networkID}/environmental/events?sensorSerial=${getHumidityID}`)
+  var deviceSerial = req.query.deviceSerial;
+  var merakiNetworkID =req.query.merakiNetworkID;
+  superagent.get(`https://api.meraki.com/api/v1/networks/${merakiNetworkID}/environmental/events?sensorSerial=${deviceSerial}`)
     .set('Content-Type', 'application/x-www-form-urlencoded')
     .set('X-Cisco-Meraki-API-Key', MERAKI_API_KEY)
     .then(humidityData => {
-      console.log('Humidity', humidityData.body);
+      // console.log('Humidity', humidityData.body);
       if (humidityData.body[0].eventData) { res.status(200).send( humidityData.body[0].eventData.cutoff); } else { return []; }
  
     })
@@ -243,13 +233,13 @@ async function getHumidity(req, res, next)
  */
 async function getWaterLeakTest(req, res, next)
 {
-  var getWaterLeakID = 'Q3CB-F4C4-L9SF';
-  var networkID ='L_676102894059002113';
-  superagent.get(`https://api.meraki.com/api/v1/networks/${networkID}/environmental/events?sensorSerial=${getWaterLeakID}`)
+  var deviceSerial = req.query.deviceSerial;
+  var merakiNetworkID =req.query.merakiNetworkID;
+  superagent.get(`https://api.meraki.com/api/v1/networks/${merakiNetworkID}/environmental/events?sensorSerial=${deviceSerial}`)
     .set('Content-Type', 'application/x-www-form-urlencoded')
     .set('X-Cisco-Meraki-API-Key', MERAKI_API_KEY)
     .then(waterLeakData => {
-      console.log('waterLeakData', waterLeakData.body);
+      // console.log('waterLeakData', waterLeakData.body);
       if (waterLeakData.body[0].eventData) { res.status(200).send( waterLeakData.body[0].eventData.value); } else { return []; }
   
     })
@@ -266,13 +256,13 @@ async function getWaterLeakTest(req, res, next)
  */
 async function getDoorStatus(req, res, next)
 {
-  var getDoorStatusID = 'Q3CC-WBJK-UAU7';
-  var networkID ='L_676102894059002113';
-  superagent.get(`https://api.meraki.com/api/v1/networks/${networkID}/environmental/events?sensorSerial=${getDoorStatusID}`)
+  var deviceSerial = req.query.deviceSerial;
+  var merakiNetworkID =req.query.merakiNetworkID;
+  superagent.get(`https://api.meraki.com/api/v1/networks/${merakiNetworkID}/environmental/events?sensorSerial=${deviceSerial}`)
     .set('Content-Type', 'application/x-www-form-urlencoded')
     .set('X-Cisco-Meraki-API-Key', MERAKI_API_KEY)
     .then(doorStatusData => {
-      console.log('doorStatusData', doorStatusData.body);
+      // console.log('doorStatusData', doorStatusData.body);
       if (doorStatusData.body) { res.status(200).send( doorStatusData.body); } else { return []; }
    
     })
