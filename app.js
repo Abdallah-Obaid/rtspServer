@@ -20,14 +20,26 @@
 // console.log('stream: ',stream);
 
 
-const Stream = require('node-rtsp-stream-es6');
- 
-const options = {
-  name: 'streamName',
-  url: 'rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov',
-  port: 4000,
-};
- 
-var stream = new Stream(options);
- 
-stream.start();
+var cameraIp = '192.168.128.212';
+var cameraPort = 9000;
+
+var Stream = require('node-rtsp-stream');
+var stream = new Stream({
+  name: 'name',
+  streamUrl: `rtsp://${cameraIp}:${cameraPort}/live`,//'rtsp://192.168.128.2:9000/live'
+  wsPort: 9990,
+  ffmpegOptions: { // options ffmpeg flags
+    // '-reconnect':1,
+    // '-reconnect_at_eof':1,
+    // '-reconnect_streamed':1,
+    '-reconnect_delay_max':3,
+    '-stats': '', // an option with no neccessary value uses a blank string
+    '-r': 25,// options with required values specify the value after the key
+
+    // '-vf':'mpdecivfrmate',
+    // '-vsync':'vfr',
+    
+    // 'timelimit':30000,
+     //'-bufsize': '420p' ,
+  },
+});
