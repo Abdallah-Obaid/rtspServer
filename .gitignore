@@ -4,6 +4,7 @@ temp
 build
 coverage
 
+
 # Created by https://www.gitignore.io/api/vim,osx,node,linux,windows
 ### Linux ###
 *~
@@ -81,6 +82,7 @@ typings/
 .env
 
 
+
 ### OSX ###
 *.DS_Store
 .AppleDouble
@@ -142,4 +144,5 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# End of https://www.gitignore.io/api/vim,osx,node,linux,windows
+# End of https://www.gitignore.io/api/vim,osx,node,linux,windowssendgrid.env
+sendgrid.env
