@@ -2,10 +2,10 @@
   "name": "rtspServer",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",
@@ -26,15 +26,8 @@
     "eslint": "^7.12.0",
     "express": "^4.17.1",
     "ffmpeg": "0.0.4",
-    "media-stream-library": "^9.3.0",
-    "node-onvif": "^0.1.7",
-    "node-rtsp-recorder": "^1.0.3",
+    "morgan": "^1.10.0",
     "node-rtsp-stream": "^0.0.9",
-    "node-rtsp-stream-es6": "^1.0.7",
-    "node-rtsp-stream-jsmpeg": "^0.0.2",
-    "onvif": "^0.6.4",
-    "pg": "^8.4.1",
-    "rtsp-relay": "^1.4.0",
-    "streamedian": "git://github.com/Streamedian/html5_rtsp_player.git"
+    "superagent": "^6.1.0"
   }
 }
