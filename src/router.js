@@ -41,6 +41,8 @@ const MERAKI_API_KEY = process.env.MERAKI_API_KEY;
  */
 async function loadRtspStream(req, res, next)
 {
+  await cp.exec('pkill ffmpeg', function(err, stdout, stderr) {console.log('kill error:',err);});
+  
   var stream = new Stream({
     name: 'name',
     streamUrl: `rtsp://192.168.128.212:${CAMERAPORT}/live`,//`rtsp://${cameraIp}:${cameraPort}/live`,//'rtsp://192.168.128.2:9000/live'
@@ -63,8 +65,8 @@ async function loadRtspStream(req, res, next)
   setInterval(async () => {
     console.log('##########',modulecount.count3());
     if (modulecount.count3()==refreshTime){
-      console.log('connection lost');
-      console.log('This is pid ' + process.pid);
+      // console.log('connection lost');
+      // console.log('This is pid ' + process.pid);
       process.on('exit', async function () {
         require('child_process').spawn(process.argv.shift(), process.argv, {
           cwd: process.cwd(),
@@ -102,7 +104,7 @@ async function getTemperature(req, res, next)
     .auth(FIBARO_USER_NAME, FIBARO_PASSWORD)
     .then(TempData => {
 
-      console.log('TempData', TempData.body.properties.value);
+      // console.log('TempData', TempData.body.properties.value);
       if (TempData.body.properties.value) { res.status(200).send( TempData.body.properties.value); } else { return []; }
 
     })
@@ -126,7 +128,7 @@ async function getSmoke(req, res, next)
     .auth(FIBARO_USER_NAME, FIBARO_PASSWORD)
     .then(smokeData => {
   
-      console.log('smokeData', smokeData.body.properties.value);
+      // console.log('smokeData', smokeData.body.properties.value);
       if (smokeData.body.properties.value) { res.status(200).send( smokeData.body.properties.value); } else { return []; }
   
     })
@@ -150,7 +152,7 @@ async function getPowerConsumption(req, res, next)
     .auth(FIBARO_USER_NAME, FIBARO_PASSWORD)
     .then(powerData => {
   
-      console.log('powerData', powerData.body);
+      // console.log('powerData', powerData.body);
       if (powerData.body) { res.status(200).send(powerData.body);} else { return []; }
   
     })
@@ -174,7 +176,7 @@ async function checkSwitchStatus(req, res, next)
     .auth(FIBARO_USER_NAME, FIBARO_PASSWORD)
     .then(checkSwitchStatus => {
   
-      console.log('checkSwitchStatus', checkSwitchStatus.body.properties.value);
+      // console.log('checkSwitchStatus', checkSwitchStatus.body.properties.value);
       if (checkSwitchStatus.body.properties.value) { res.status(200).send(checkSwitchStatus.body.properties.value);} else { return []; }
   
     })
@@ -199,7 +201,7 @@ async function postPowerSwitch(req, res, next)
     .auth(FIBARO_USER_NAME, FIBARO_PASSWORD)
     .then(PostPowerSwitch => {
   
-      console.log('PostPowerSwitch', PostPowerSwitch.body.result);
+      // console.log('PostPowerSwitch', PostPowerSwitch.body.result);
       if (PostPowerSwitch.body.result) { res.status(200).send(PostPowerSwitch.body.result); } else { return []; }
   
     })
