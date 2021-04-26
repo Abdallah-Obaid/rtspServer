@@ -25,7 +25,7 @@ Time off and vacation tracking that allows teams to easily request time off, vie
 
 [UML](https://lucid.app/publicSegments/view/4c87494b-17b0-444b-9a0f-b0d5a61931f8/image.png)
 
-[jsdoc](./out/global.html)
+[jsdoc](./docs/global.html)
 
 # Routes"End-points"
 
