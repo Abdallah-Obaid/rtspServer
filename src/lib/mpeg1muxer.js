@@ -1,6 +1,6 @@
 var Mpeg1Muxer, child_process, events, util;
 // var cp = require('child_process')
-const fs = require('fs');
+// const fs = require('fs');
 child_process = require('child_process');
 
 util = require('util');
@@ -46,10 +46,10 @@ Mpeg1Muxer = function(options) {
 
   this.stream.stdout.on('data',async (data) => {
   //  console.log("################",data)
-  fs.appendFile('stream-data3.txt', data, function (err) {
-    // if (err) throw err;
-    // console.log('Thanks, It\'s saved to the file!');
-  });
+  // fs.appendFile('stream-data3.txt', data, function (err) {
+  //   // if (err) throw err;
+  //   // console.log('Thanks, It\'s saved to the file!');
+  // });
     count1 =count1 +1;
   
     // console.log('count1',count1)
