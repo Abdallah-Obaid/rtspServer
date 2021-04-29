@@ -10,10 +10,13 @@
 <body>
 
     <main class="main">
-      <div></div><canvas id="video-canvas" width="640" height="360"></canvas></div>     
+      <div style="width: 400px; height: 400px;"><canvas id="video-canvas" width="1080" height="720" style="width: 400px; height: 400px;"></canvas></div>     
       <video id="videoPlayer" controls>
-        <source src="http://localhost:4000/recordedVideo?videoName=2021-04-28_12-33-03" type="video/mp4">
+        <source src="http://localhost:4000/recordedVideo?videoName=2021-04-29_11-45-02.mp4" type="video/mp4">
       </video>
+      <select name="record-list" id="record-list">
+
+      </select>
     </main>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=Array.from,Promise,Symbol,Object.setPrototypeOf,Object.getOwnPropertySymbols,Set"></script>
     <script src="https://cdn.jsdelivr.net/npm/superagent"></script>
@@ -36,6 +39,26 @@
         }
 
       })
+      function requestList(){
+        var url = 'http://localhost:4000/recordList'
+        $.ajax({
+          url: url,
+          success: (data) => {
+            // console.log(data)a
+            data.forEach(element => {
+              $("#record-list").append(new Option(element, element));
+              // console.log(element)
+            });
+          },
+        });
+
+      }
+      requestList()
+
+      $('#record-list').on('change',renderRecord)
+      function renderRecord(){
+        $('#videoPlayer source').attr('src', `http://localhost:4000/recordedVideo?videoName=${$('#record-list').val()}`);
+      }
 
     </script>
     <!-- <script type="text/javascript">
