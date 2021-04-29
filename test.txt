@@ -1,0 +1,48 @@
+  this.spawnOptions = [
+    '-rtsp_transport',
+    'tcp',
+    '-i',
+    this.url,
+    '-c',
+    'copy',
+    '-f',
+    'segment',
+    '-segment_time',
+    '60',
+    'stream_piece_%d.mp4',
+    '-f',
+    'mpegts',
+    '-codec:v',
+    'mpeg1video',
+    '-r',
+    '25',
+    // additimpeg2videoonal ffmpeg options go here
+    ...this.additionalFlags,
+    '-',
+  ];
+  
+  
+  [
+    '-rtsp_transport',
+    'tcp',
+    '-i',
+    this.url,
+    '-c',
+    'copy',
+    '-f',
+    'segment',
+    '-strftime',
+     '1',
+    '-segment_time',
+    '60',
+    '%Y-%m-%d_%H-%M-%S.mp4',
+    '-f',
+    'mpegts',
+    '-codec:v',
+    'mpeg1video',
+    '-r',
+    '25',
+    // additimpeg2videoonal ffmpeg options go here
+    ...this.additionalFlags,
+    '-',
+  ];
