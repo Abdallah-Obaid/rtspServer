@@ -363,7 +363,7 @@ async function getDoorStatus(req, res, next)
  */
 function loadVideo(req, res, next){
     var videoName = req.query.videoName;
-    const path = `recorded_videos/${videoName}.mp4`
+    const path = `recorded_videos/${videoName}`
     const stat = fs.statSync(path)
     const fileSize = stat.size
     const range = req.headers.range
