@@ -241,7 +241,8 @@ async function postPowerSwitch(req, res, next)
  {
    var deviceSerial = req.query.deviceSerial;
    var merakiNetworkID =req.query.merakiNetworkID;
-   superagent.get(`https://api.meraki.com/api/v1/networks/${merakiNetworkID}/environmental/events?sensorSerial=${deviceSerial}&perPage=10&includedEventTypes[]=mt_temperature`)
+   var eventType =req.query.eventType;
+   superagent.get(`https://api.meraki.com/api/v1/networks/${merakiNetworkID}/environmental/events?sensorSerial=${deviceSerial}&perPage=10&includedEventTypes[]=${eventType}`)
      .set('Content-Type', 'application/x-www-form-urlencoded')
      .set('X-Cisco-Meraki-API-Key', MERAKI_API_KEY)
      .then(temperatureData => {
@@ -265,7 +266,8 @@ async function getHumidityMeraki(req, res, next)
 {
   var deviceSerial = req.query.deviceSerial;
   var merakiNetworkID =req.query.merakiNetworkID;
-  superagent.get(`https://api.meraki.com/api/v1/networks/${merakiNetworkID}/environmental/events?sensorSerial=${deviceSerial}&perPage=10&includedEventTypes[]=mt_humidity`)
+  var eventType =req.query.eventType;
+  superagent.get(`https://api.meraki.com/api/v1/networks/${merakiNetworkID}/environmental/events?sensorSerial=${deviceSerial}&perPage=10&includedEventTypes[]=${eventType}`)
     .set('Content-Type', 'application/x-www-form-urlencoded')
     .set('X-Cisco-Meraki-API-Key', MERAKI_API_KEY)
     .then(humidityData => {
@@ -287,9 +289,11 @@ async function getHumidityMeraki(req, res, next)
  */
 async function getWaterLeakTest(req, res, next)
 {
+  debugger
   var deviceSerial = req.query.deviceSerial;
   var merakiNetworkID =req.query.merakiNetworkID;
-  superagent.get(`https://api.meraki.com/api/v1/networks/${merakiNetworkID}/environmental/events?sensorSerial=${deviceSerial}`)
+  var eventType =req.query.eventType;
+  superagent.get(`https://api.meraki.com/api/v1/networks/${merakiNetworkID}/environmental/events?sensorSerial=${deviceSerial}&perPage=10&includedEventTypes[]=${eventType}`)
     .set('Content-Type', 'application/x-www-form-urlencoded')
     .set('X-Cisco-Meraki-API-Key', MERAKI_API_KEY)
     .then(waterLeakData => {
