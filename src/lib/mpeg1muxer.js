@@ -1,5 +1,6 @@
 var Mpeg1Muxer, child_process, events, util;
-var cp = require('child_process')
+// var cp = require('child_process')
+const fs = require('fs');
 child_process = require('child_process');
 
 util = require('util');
@@ -28,12 +29,14 @@ Mpeg1Muxer = function(options) {
     'tcp',
     '-i',
     this.url,
+    // additimpeg2videoonal ffmpeg options go here
+    ...this.additionalFlags,
     '-f',
     'mpegts',
     '-codec:v',
     'mpeg1video',
-    // additional ffmpeg options go here
-    ...this.additionalFlags,
+    '-r',
+    '25',
     '-',
   ];
   this.stream = child_process.spawn(options.ffmpegPath, this.spawnOptions, {
@@ -41,15 +44,19 @@ Mpeg1Muxer = function(options) {
   });
   this.inputStreamStarted = true;
 
-  this.stream.stdout.on('data', (data) => {
- 
+  this.stream.stdout.on('data',async (data) => {
+  //  console.log("################",data)
+  fs.appendFile('stream-data3.txt', data, function (err) {
+    // if (err) throw err;
+    // console.log('Thanks, It\'s saved to the file!');
+  });
     count1 =count1 +1;
   
     // console.log('count1',count1)
     return this.emit('mpeg1data', data);
   });
   setInterval(()=>{ 
-    console.log("Pre:",{count1},{count2},{count3})
+    // console.log("Pre:",{count1},{count2},{count3})
     if((count2==count1)){
       count3=count3+1
     }
@@ -61,7 +68,7 @@ Mpeg1Muxer = function(options) {
  
     }
     count4=count3
-    console.log("Post:",{count1},{count2},{count3})
+    // console.log("Post:",{count1},{count2},{count3})
   },2000)
   this.stream.stderr.on('data', (data) => {
     // console.log('data2222222222222222222222222',data)

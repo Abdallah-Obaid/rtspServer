@@ -11,7 +11,9 @@
 
     <main class="main">
       <div></div><canvas id="video-canvas" width="640" height="360"></canvas></div>     
-
+      <video id="videoPlayer" controls>
+        <source src="http://localhost:4000/recordedVideo?videoName=2021-04-28_12-33-03" type="video/mp4">
+      </video>
     </main>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=Array.from,Promise,Symbol,Object.setPrototypeOf,Object.getOwnPropertySymbols,Set"></script>
     <script src="https://cdn.jsdelivr.net/npm/superagent"></script>

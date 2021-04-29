@@ -4,10 +4,13 @@ const superagent = require('superagent');
 const express = require('express');
 const router = express.Router();
 var cp = require('child_process');
+const fs = require('fs');
 var modulecount = require('./lib/mpeg1muxer');
 var Stream = require('./lib/videoStream');
 // Main routs
-router.get('/loadRtspStream', loadRtspStream);
+// router.get('/loadRtspStream', loadRtspStream);
+router.get('/recordedVideo', loadVideo);
+router.get('/recordList', recordList);
 
 // Fibaro routs
 router.get('/getTemperature/', getTemperature);
@@ -18,7 +21,8 @@ router.post('/postPowerSwitch/', postPowerSwitch);
 
 
 // Meraki routs
-router.get('/getHumidity', getHumidity);
+router.get('/getTemperatureMeraki/', getTemperatureMeraki);
+router.get('/getHumidityMeraki', getHumidityMeraki);
 router.get('/getWaterLeakTest', getWaterLeakTest);
 router.get('/getDoorStatus', getDoorStatus);
 
@@ -41,23 +45,35 @@ const MERAKI_API_KEY = process.env.MERAKI_API_KEY;
  */
 async function loadRtspStream(req, res, next)
 {
-  await cp.exec('pkill ffmpeg', function(err, stdout, stderr) {console.log('kill error:',err);});
+  // await cp.exec('pkill ffmpeg', function(err, stdout, stderr) {console.log('kill error:',err);});
   
-  var stream = new Stream({
+  var stream = await new Stream({
     name: 'name',
-    streamUrl: `rtsp://192.168.128.212:${CAMERAPORT}/live`,//`rtsp://${cameraIp}:${cameraPort}/live`,//'rtsp://192.168.128.2:9000/live'
+    streamUrl: `rtsp://${CAMERAIP}:${CAMERAPORT}/live`,//`rtsp://${CAMERAIP}:${CAMERAPORT}/live`,//'rtsp://192.168.128.2:9000/live'
     wsPort: 9999,
     ffmpegOptions: { // options ffmpeg flags
   
-      '-reconnect':'1',
-      '-reconnect_at_eof' : '1',
-      '-reconnect_streamed' : '1',
-      '-reconnect_delay_max' : 4000,
-      '-stats': '', // an option with no neccessary value uses a blank string
-      '-r': 25,// options with required values specify the value after the key
-      '-bufsize': '420p' ,
-      '-rtsp_transport' : 'tcp',
-      '-max_delay': 0,
+      // '-reconnect':'1',
+      // '-reconnect_at_eof' : '1',
+      // '-reconnect_streamed' : '1',
+      // '-reconnect_delay_max' : 4000,
+      // '-stats': '', // an option with no neccessary value uses a blank string
+      // '-r': 25,// options with required values specify the value after the key
+      // '-bufsize': '420p' ,
+      // '-rtsp_transport' : 'tcp',
+      // '-max_delay': 0,
+      // '-r' : '25',
+      '-c' : 'copy',
+      '-f' : 'segment',
+      '-strftime' : '1',
+      '-segment_time' : '20',
+      // '-segment_format' : 'mp4',
+      '-codec:v': 'mpeg2video',
+      './recorded_videos/%Y-%m-%d_%H-%M-%S.mp4': '',
+      
+
+
+
   
     },
   });
@@ -65,6 +81,7 @@ async function loadRtspStream(req, res, next)
   setInterval(async () => {
     console.log('##########',modulecount.count3());
     if (modulecount.count3()==refreshTime){
+ 
       // console.log('connection lost');
       // console.log('This is pid ' + process.pid);
       process.on('exit', async function () {
@@ -77,6 +94,7 @@ async function loadRtspStream(req, res, next)
       });
       await cp.exec('pkill ffmpeg', function(err, stdout, stderr) {console.log('kill error:',err);});
       process.exit(1);
+      // loadRtspStream(req, res, next)
     }
   }, 2000);
 
@@ -88,7 +106,7 @@ async function loadRtspStream(req, res, next)
   res.send('IT WORK');
 
 }
-
+loadRtspStream();
 
 /** 
  * This function will get the temperature from Fibaro sensor
@@ -105,7 +123,7 @@ async function getTemperature(req, res, next)
     .then(TempData => {
 
       // console.log('TempData', TempData.body.properties.value);
-      if (TempData.body.properties.value) { res.status(200).send( TempData.body.properties.value); } else { return []; }
+      if (TempData.body.properties.value) { res.status(200).send( TempData.body.properties.value); } else { res.status(200).send([]); }
 
     })
     .catch(err => {
@@ -129,7 +147,7 @@ async function getSmoke(req, res, next)
     .then(smokeData => {
   
       // console.log('smokeData', smokeData.body.properties.value);
-      if (smokeData.body.properties.value) { res.status(200).send( smokeData.body.properties.value); } else { return []; }
+      if (smokeData.body.properties.value) { res.status(200).send( smokeData.body.properties.value); } else { res.status(200).send([]); }
   
     })
     .catch(err => {
@@ -147,13 +165,14 @@ async function getSmoke(req, res, next)
 async function getPowerConsumption(req, res, next)
 {
   var powerDeviceID = req.query.deviceID; 
+  var dateDiff = req.query.dateDiff;
   superagent.get(`http://${IP_ADDRESS_FOR_FIBARO_SENSORS}/api/energy/now-100000/now/summary-graph/devices/energy/${ powerDeviceID}`)
     .set('Content-Type', 'application/x-www-form-urlencoded')
     .auth(FIBARO_USER_NAME, FIBARO_PASSWORD)
     .then(powerData => {
   
       // console.log('powerData', powerData.body);
-      if (powerData.body) { res.status(200).send(powerData.body);} else { return []; }
+      if (powerData.body) { res.status(200).send(powerData.body);} else { res.status(200).send([]); }
   
     })
     .catch(err => {
@@ -177,7 +196,7 @@ async function checkSwitchStatus(req, res, next)
     .then(checkSwitchStatus => {
   
       // console.log('checkSwitchStatus', checkSwitchStatus.body.properties.value);
-      if (checkSwitchStatus.body.properties.value) { res.status(200).send(checkSwitchStatus.body.properties.value);} else { return []; }
+      if (checkSwitchStatus.body.properties.value) { res.status(200).send(checkSwitchStatus.body.properties.value);} else { res.status(200).send([]); }
   
     })
     .catch(err => {
@@ -202,7 +221,7 @@ async function postPowerSwitch(req, res, next)
     .then(PostPowerSwitch => {
   
       // console.log('PostPowerSwitch', PostPowerSwitch.body.result);
-      if (PostPowerSwitch.body.result) { res.status(200).send(PostPowerSwitch.body.result); } else { return []; }
+      if (PostPowerSwitch.body.result) { res.status(200).send(PostPowerSwitch.body.result); } else { res.status(200).send([]); }
   
     })
     .catch(err => {
@@ -211,22 +230,47 @@ async function postPowerSwitch(req, res, next)
     });
 }
 
+
+/** 
+ * This function will return Temperature from Meraki sensor
+ * @param {obj} req 
+ * @param {obj} res 
+ * @param {function} next 
+ */
+ async function getTemperatureMeraki(req, res, next)
+ {
+   var deviceSerial = req.query.deviceSerial;
+   var merakiNetworkID =req.query.merakiNetworkID;
+   superagent.get(`https://api.meraki.com/api/v1/networks/${merakiNetworkID}/environmental/events?sensorSerial=${deviceSerial}&perPage=10&includedEventTypes[]=mt_temperature`)
+     .set('Content-Type', 'application/x-www-form-urlencoded')
+     .set('X-Cisco-Meraki-API-Key', MERAKI_API_KEY)
+     .then(temperatureData => {
+       // console.log('temperatureData', temperatureData.body);
+       if (temperatureData.body[0].eventData) { res.status(200).send( temperatureData.body[0].eventData.value); } else { res.status(200).send([]); }
+  
+     })
+     .catch(err => {
+       console.log('Temperature sensor error: ', err);
+       res.status(403).send('Temperature sensor error');
+     });
+ }
+
 /** 
  * This function will return humidity from Meraki sensor
  * @param {obj} req 
  * @param {obj} res 
  * @param {function} next 
  */
-async function getHumidity(req, res, next)
+async function getHumidityMeraki(req, res, next)
 {
   var deviceSerial = req.query.deviceSerial;
   var merakiNetworkID =req.query.merakiNetworkID;
-  superagent.get(`https://api.meraki.com/api/v1/networks/${merakiNetworkID}/environmental/events?sensorSerial=${deviceSerial}`)
+  superagent.get(`https://api.meraki.com/api/v1/networks/${merakiNetworkID}/environmental/events?sensorSerial=${deviceSerial}&perPage=10&includedEventTypes[]=mt_humidity`)
     .set('Content-Type', 'application/x-www-form-urlencoded')
     .set('X-Cisco-Meraki-API-Key', MERAKI_API_KEY)
     .then(humidityData => {
-      // console.log('Humidity', humidityData.body);
-      if (humidityData.body[0].eventData) { res.status(200).send( humidityData.body[0].eventData.cutoff); } else { return []; }
+      // console.log('humidityData', humidityData.body);
+      if (humidityData.body[0].eventData) { res.status(200).send( humidityData.body[0].eventData.value); } else { res.status(200).send([]); }
  
     })
     .catch(err => {
@@ -250,7 +294,7 @@ async function getWaterLeakTest(req, res, next)
     .set('X-Cisco-Meraki-API-Key', MERAKI_API_KEY)
     .then(waterLeakData => {
       // console.log('waterLeakData', waterLeakData.body);
-      if (waterLeakData.body[0].eventData) { res.status(200).send( waterLeakData.body[0].eventData.value); } else { return []; }
+      if (waterLeakData.body[0].eventData) { res.status(200).send( waterLeakData.body[0].eventData.value); } else { res.status(200).send([]); }
   
     })
     .catch(err => {
@@ -274,13 +318,105 @@ async function getDoorStatus(req, res, next)
     .set('X-Cisco-Meraki-API-Key', MERAKI_API_KEY)
     .then(doorStatusData => {
       // console.log('doorStatusData', doorStatusData.body);
-      if (doorStatusData.body) { res.status(200).send( doorStatusData.body); } else { return []; }
+      if (doorStatusData.body) { res.status(200).send( doorStatusData.body); } else { res.status(200).send([]); }
    
     })
     .catch(err => {
       console.log('Door Status sensor error: ', err);
       res.status(403).send('Door Status sensor error');
     });
+}
+
+
+/** 
+ * This function will open the door from Akuvox sensor
+ * @param {obj} req 
+ * @param {obj} res 
+ * @param {function} next 
+ */
+ async function openDoor(req, res, next)
+ {
+   var action = req.query.deviceSerial ||'OpenDoor';
+   var DoorNum =req.query.merakiNetworkID || 1;
+   superagent.get(`hhttp://192.168.2.220/fcgi/do?action=${action}&DoorNum=${DoorNum}`)
+     .set('Content-Type', 'application/x-www-form-urlencoded')
+     .then(doorStatusData => {
+       // console.log('doorStatusData', doorStatusData.body);
+       if (doorStatusData.body) { res.status(200).send( doorStatusData.body); } else { res.status(200).send( []); }
+    
+     })
+     .catch(err => {
+       console.log('Door Status sensor error: ', err);
+       res.status(403).send('Door Status sensor error');
+     });
+ }
+
+ /** 
+ * This function will load the recorded video by name
+ * @param {obj} req 
+ * @param {obj} res 
+ * @param {function} next 
+ */
+function loadVideo(req, res, next){
+    var videoName = req.query.videoName;
+    const path = `recorded_videos/${videoName}.mp4`
+    const stat = fs.statSync(path)
+    const fileSize = stat.size
+    const range = req.headers.range
+    if (range) {
+      const parts = range.replace(/bytes=/, "").split("-")
+      const start = parseInt(parts[0], 10)
+      const end = parts[1] 
+        ? parseInt(parts[1], 10)
+        : fileSize-1
+      const chunksize = (end-start)+1
+      const file = fs.createReadStream(path, {start, end})
+      const head = {
+        'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+        'Accept-Ranges': 'bytes',
+        'Content-Length': chunksize,
+        'Content-Type': 'video/mp4',
+      }
+      res.writeHead(206, head);
+      file.pipe(res);
+    } else {
+      const head = {
+        'Content-Length': fileSize,
+        'Content-Type': 'video/mp4',
+      }
+      res.writeHead(200, head)
+      fs.createReadStream(path).pipe(res)
+    }
+}
+
+ /** 
+ * This function will send all the recorded video file name to front end
+ * @param {obj} req 
+ * @param {obj} res 
+ * @param {function} next 
+ */
+  function recordList(req, res, next){
+
+try {
+  const testFolder = './recorded_videos/';
+  var result = []
+  fs.readdir(testFolder, (err, files) => {
+    files.forEach(file => {
+      // console.log(file)
+      result.push(file);
+    });
+    if (result) { res.status(200).send(result); } else { res.status(200).send([]); }
+  });
+ 
+} catch (error) {
+  console.log('Record list error: ', error);
+  res.status(403).send('Record list error');
+}
+
+       
+
+
+
 }
 
 module.exports = router;
