@@ -7,6 +7,7 @@ var cp = require('child_process');
 const fs = require('fs');
 var modulecount = require('./lib/mpeg1muxer');
 var Stream = require('./lib/videoStream');
+const { json } = require('express');
 // Main routs
 // router.get('/loadRtspStream', loadRtspStream);
 router.get('/recordedVideo', loadVideo);
@@ -46,7 +47,7 @@ const MERAKI_API_KEY = process.env.MERAKI_API_KEY;
 async function loadRtspStream(req, res, next)
 {
   // await cp.exec('pkill ffmpeg', function(err, stdout, stderr) {console.log('kill error:',err);});
-  
+  var recordDuration = 120; //in sec
   var stream = await new Stream({
     name: 'name',
     streamUrl: `rtsp://${CAMERAIP}:${CAMERAPORT}/live`,//`rtsp://${CAMERAIP}:${CAMERAPORT}/live`,//'rtsp://192.168.128.2:9000/live'
@@ -66,7 +67,7 @@ async function loadRtspStream(req, res, next)
       '-c' : 'copy',
       '-f' : 'segment',
       '-strftime' : '1',
-      '-segment_time' : '20',
+      '-segment_time' : `${recordDuration}`,
       // '-segment_format' : 'mp4',
       '-codec:v': 'mpeg2video',
       './recorded_videos/%Y-%m-%d_%H-%M-%S.mp4': '',
@@ -242,12 +243,29 @@ async function postPowerSwitch(req, res, next)
    var deviceSerial = req.query.deviceSerial;
    var merakiNetworkID =req.query.merakiNetworkID;
    var eventType =req.query.eventType;
-   superagent.get(`https://api.meraki.com/api/v1/networks/${merakiNetworkID}/environmental/events?sensorSerial=${deviceSerial}&perPage=10&includedEventTypes[]=${eventType}`)
+   superagent.get(`https://api.meraki.com/api/v1/networks/${merakiNetworkID}/environmental/events?sensorSerial=${deviceSerial}&perPage=5&includedEventTypes[]=${eventType}`)
      .set('Content-Type', 'application/x-www-form-urlencoded')
      .set('X-Cisco-Meraki-API-Key', MERAKI_API_KEY)
      .then(temperatureData => {
        // console.log('temperatureData', temperatureData.body);
-       if (temperatureData.body[0].eventData) { res.status(200).send( temperatureData.body[0].eventData.value); } else { res.status(200).send([]); }
+
+       if (temperatureData.body[0].eventData) {
+        var dateModeArr =[];
+        var tempValue = [];
+        temperatureData.body.forEach((ele)=>{
+        var dateMod = `${new Date(ele.occurredAt).getUTCDate()}/${ new Date(ele.occurredAt).getUTCMonth()+1}`
+        dateModeArr.push( dateMod );
+        tempValue.push( Number(ele.eventData.value).toFixed(2))
+        })
+        var arrayToSend = {
+          date:dateModeArr,
+          tempValue:tempValue,
+        }
+        var dataToSent = {
+          allData: arrayToSend,
+          temperatureData: temperatureData.body[0].eventData.value,
+        };
+        res.status(200).send(JSON.stringify(dataToSent)); } else { res.status(200).send([]); }
   
      })
      .catch(err => {
