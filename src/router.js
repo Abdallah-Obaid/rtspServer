@@ -12,10 +12,14 @@ const { json } = require('express');
 // router.get('/loadRtspStream', loadRtspStream);
 router.get('/recordedVideo', loadVideo);
 router.get('/recordList', recordList);
+router.get('/sensorsNumber', sensorsNumber);
 
 // Fibaro routs
-router.get('/getTemperature/', getTemperature);
+router.get('/getTemperatureFibaro/', getTemperatureFibaro);
+router.get('/getHumidityFibaro/', getHumidityFibaro);
 router.get('/getSmoke/', getSmoke);
+router.get('/getDust/', getDust);
+router.get('/getCo2/',getCo2);
 router.get('/getPowerConsumption/', getPowerConsumption);
 router.get('/checkSwitchStatus/', checkSwitchStatus);
 router.post('/postPowerSwitch/', postPowerSwitch);
@@ -36,6 +40,7 @@ const FIBARO_USER_NAME = process.env.FIBARO_USER_NAME;
 const CAMERAIP = process.env.CAMERAIP;
 const CAMERAPORT = process.env.CAMERAPORT;
 const MERAKI_API_KEY = process.env.MERAKI_API_KEY;
+const SENSORS_NUMBER = process.env.SENSORS_NUMBER;
 
 // Functions definitions
 /** 
@@ -115,16 +120,16 @@ loadRtspStream();
  * @param {obj} res 
  * @param {function} next 
  */
-async function getTemperature(req, res, next)
+async function getTemperatureFibaro(req, res, next)
 {
   var tempDeviceID = req.query.deviceID; 
   superagent.get(`http://${IP_ADDRESS_FOR_FIBARO_SENSORS}/api/devices/${tempDeviceID}`)
     .set('Content-Type', 'application/x-www-form-urlencoded')
     .auth(FIBARO_USER_NAME, FIBARO_PASSWORD)
-    .then(TempData => {
+    .then(tempData => {
 
       // console.log('TempData', TempData.body.properties.value);
-      if (TempData.body.properties.value) { res.status(200).send( TempData.body.properties.value); } else { res.status(200).send([]); }
+      if (tempData.body.properties.value) { res.status(200).send( tempData.body.properties.value); } else { res.status(200).send([]); }
 
     })
     .catch(err => {
@@ -132,6 +137,30 @@ async function getTemperature(req, res, next)
       res.status(403).send('Temp sensor error');
     });
 }
+
+/** 
+ * This function will get the Humidity from Fibaro sensor
+ * @param {obj} req 
+ * @param {obj} res 
+ * @param {function} next 
+ */
+ async function getHumidityFibaro(req, res, next)
+ {
+   var humidityDeviceID = req.query.deviceID; 
+   superagent.get(`http://${IP_ADDRESS_FOR_FIBARO_SENSORS}/api/devices/${humidityDeviceID}`)
+     .set('Content-Type', 'application/x-www-form-urlencoded')
+     .auth(FIBARO_USER_NAME, FIBARO_PASSWORD)
+     .then(humidityData => {
+ 
+       // console.log('TempData', TempData.body.properties.value);
+       if (humidityData.body.properties.value) { res.status(200).send( humidityData.body.properties.value); } else { res.status(200).send([]); }
+ 
+     })
+     .catch(err => {
+       console.log('Temp sensor error: ', err);
+       res.status(403).send('Temp sensor error');
+     });
+ }
 
 /** 
  * This function will get the smoke test from Fibaro sensor
@@ -156,6 +185,54 @@ async function getSmoke(req, res, next)
       res.status(403).send('Smoke sensor error');
     });
 }
+
+/** 
+ * This function will get the dust from Fibaro sensor
+ * @param {obj} req 
+ * @param {obj} res 
+ * @param {function} next 
+ */
+ async function getDust(req, res, next)
+ {
+   var dustDeviceID = req.query.deviceID; 
+   superagent.get(`http://${IP_ADDRESS_FOR_FIBARO_SENSORS}/api/devices/${ dustDeviceID}`)
+     .set('Content-Type', 'application/x-www-form-urlencoded')
+     .auth(FIBARO_USER_NAME, FIBARO_PASSWORD)
+     .then(dustData => {
+   
+       // console.log('dustData', dustData.body.properties.value);
+       if (dustData.body.properties.value) { res.status(200).send( dustData.body.properties.value); } else { res.status(200).send([]); }
+   
+     })
+     .catch(err => {
+       console.log('Dust sensor error: ', err);
+       res.status(403).send('Dust sensor error');
+     });
+ }
+
+/** 
+ * This function will get the Co2 from Fibaro sensor
+ * @param {obj} req 
+ * @param {obj} res 
+ * @param {function} next 
+ */
+ async function getCo2(req, res, next)
+ {
+   var co2DeviceID = req.query.deviceID; 
+   superagent.get(`http://${IP_ADDRESS_FOR_FIBARO_SENSORS}/api/devices/${ co2DeviceID}`)
+     .set('Content-Type', 'application/x-www-form-urlencoded')
+     .auth(FIBARO_USER_NAME, FIBARO_PASSWORD)
+     .then(co2Data => {
+   
+       // console.log('dustData', dustData.body.properties.value);
+       if (co2Data.body.properties.value) { res.status(200).send( co2Data.body.properties.value); } else { res.status(200).send([]); }
+   
+     })
+     .catch(err => {
+       console.log('Co2 sensor error: ', err);
+       res.status(403).send('Co2 sensor error');
+     });
+ }
 
 /** 
  * This function will get the historical power consumption from Fibaro sensor
@@ -434,11 +511,18 @@ try {
   console.log('Record list error: ', error);
   res.status(403).send('Record list error');
 }
-
-       
-
-
-
 }
 
+
+/** 
+ * This function will return the sensors number
+ * @param {obj} req 
+ * @param {obj} res 
+ * @param {function} next 
+ */
+function sensorsNumber(req, res, next)
+ {
+  if (SENSORS_NUMBER) { res.status(200).send( SENSORS_NUMBER); } else { res.status(200).send(0); }
+
+ }
 module.exports = router;
