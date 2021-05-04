@@ -12,7 +12,7 @@
     <main class="main">
       <div style="width: 400px; height: 400px;"><canvas id="video-canvas" width="1080" height="720" style="width: 400px; height: 400px;"></canvas></div>     
       <video id="videoPlayer" controls>
-        <source src="http://localhost:4000/recordedVideo?videoName=2021-04-29_11-45-02.mp4" type="video/mp4">
+        <source src="http://192.168.2.230:4000/recordedVideo?videoName=test" type="video/mp4">
       </video>
       <select name="record-list" id="record-list">
 
@@ -28,7 +28,7 @@
     <script type="text/javascript" src="jsmpeg.min.js"></script>
     <script type="text/javascript">
       var canvas = document.getElementById('video-canvas');
-      var url = 'ws://'+document.location.hostname+':9999/';
+      var url = 'ws://'+document.location.hostname+':9999/'; // will take the host in front end
       var player = new JSMpeg.Player(url, {canvas: canvas, });
       $('#video-canvas').on('click',()=>{
         console.log(player)
@@ -40,11 +40,11 @@
 
       })
       function requestList(){
-        var url = 'http://localhost:4000/recordList'
+        var url = 'http://'+document.location.hostname+':4000/recordList'
         $.ajax({
           url: url,
           success: (data) => {
-            // console.log(data)a
+            // console.log(data)
             data.forEach(element => {
               $("#record-list").append(new Option(element, element));
               // console.log(element)
@@ -57,7 +57,10 @@
 
       $('#record-list').on('change',renderRecord)
       function renderRecord(){
-        $('#videoPlayer source').attr('src', `http://localhost:4000/recordedVideo?videoName=${$('#record-list').val()}`);
+        $('#videoPlayer source').attr('src', `http://${document.location.hostname}:4000/recordedVideo?videoName=${$('#record-list').val()}`);
+        var video = document.getElementById('videoPlayer');
+        video.load();
+        video.play();
       }
 
     </script>
