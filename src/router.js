@@ -17,6 +17,7 @@ router.get('/sensorsNumber', sensorsNumber);
 
 // Fibaro routs
 router.get('/getTemperatureFibaro/', getTemperatureFibaro);
+router.get('/getHistoricalTemperatureFibaro/', getHistoricalTemperatureFibaro);
 router.get('/getHumidityFibaro/', getHumidityFibaro);
 router.get('/getSmoke/', getSmoke);
 router.get('/getDust/', getDust);
@@ -28,6 +29,7 @@ router.post('/postPowerSwitch/', postPowerSwitch);
 
 // Meraki routs
 router.get('/getTemperatureMeraki/', getTemperatureMeraki);
+router.get('/getHistoricalTemperatureMeraki/', getHistoricalTemperatureMeraki);
 router.get('/getHumidityMeraki', getHumidityMeraki);
 router.get('/getWaterLeakTest', getWaterLeakTest);
 router.get('/getDoorStatus', getDoorStatus);
@@ -55,7 +57,7 @@ async function loadRtspStream(req, res, next) {
   var recordDuration = 120; //in sec
   var stream = await new Stream({
     name: 'name',
-    streamUrl: `rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov`,//`rtsp://${CAMERAIP}:${CAMERAPORT}/live`,//'rtsp://192.168.128.2:9000/live'
+    streamUrl: `rtsp://${CAMERAIP}:${CAMERAPORT}/live`,//`rtsp://${CAMERAIP}:${CAMERAPORT}/live`,//'rtsp://192.168.128.2:9000/live'
     wsPort: 9999,
     ffmpegOptions: { // options ffmpeg flags
 
@@ -83,7 +85,7 @@ async function loadRtspStream(req, res, next) {
 
     },
   });
-  var refreshTime = 10; // will be multiplied by 2 sec 
+  var refreshTime = 20; // will be multiplied by 2 sec 
   setInterval(async () => {
     console.log('##########', modulecount.count3());
     if (modulecount.count3() == refreshTime) {
@@ -136,6 +138,31 @@ async function getTemperatureFibaro(req, res, next) {
       res.status(403).send('Temp sensor error');
     });
 }
+
+/** 
+ * This function will get the temperature from Fibaro sensor
+ * @param {obj} req 
+ * @param {obj} res 
+ * @param {function} next 
+ */
+ async function getHistoricalTemperatureFibaro(req, res, next) {
+  var tempDeviceID = req.query.deviceID;
+  var dateDiff = req.query.dateDiff;
+  superagent.get(`http://${IP_ADDRESS_FOR_FIBARO_SENSORS}/api/temperature/now-${dateDiff}/now/summary-graph/devices/temperature/${tempDeviceID}`)
+    .set('Content-Type', 'application/x-www-form-urlencoded')
+    .auth(FIBARO_USER_NAME, FIBARO_PASSWORD)
+    .then(historicalTempData => {
+
+      // console.log('TempData', TempData.body.properties.value);
+      if (historicalTempData.body) { res.status(200).send(historicalTempData.body); } else { res.status(200).send([]); }
+
+    })
+    .catch(err => {
+      console.log('Historical temp sensor error: ', err);
+      res.status(403).send('Historical temp sensor error');
+    });
+}
+
 
 /** 
  * This function will get the Humidity from Fibaro sensor
@@ -310,31 +337,14 @@ async function postPowerSwitch(req, res, next) {
 async function getTemperatureMeraki(req, res, next) {
   var deviceSerial = req.query.deviceSerial;
   var merakiNetworkID = req.query.merakiNetworkID;
-  var eventType = req.query.eventType;
-  superagent.get(`https://api.meraki.com/api/v1/networks/${merakiNetworkID}/environmental/events?sensorSerial=${deviceSerial}&perPage=5&includedEventTypes[]=${eventType}`)
+  var metric = req.query.metric;
+  superagent.get(`https://api.meraki.com/api/v1/networks/${merakiNetworkID}/sensors/stats/latestBySensor?metric=${metric}&serial=${deviceSerial}`)
     .set('Content-Type', 'application/x-www-form-urlencoded')
     .set('X-Cisco-Meraki-API-Key', MERAKI_API_KEY)
     .then(temperatureData => {
       // console.log('temperatureData', temperatureData.body);
 
-      if (temperatureData.body[0].eventData) {
-        var dateModeArr = [];
-        var tempValue = [];
-        temperatureData.body.forEach((ele) => {
-          var dateMod = `${new Date(ele.occurredAt).getUTCDate()}/${new Date(ele.occurredAt).getUTCMonth() + 1}`
-          dateModeArr.push(dateMod);
-          tempValue.push(Number(ele.eventData.value).toFixed(2))
-        })
-        var arrayToSend = {
-          date: dateModeArr,
-          tempValue: tempValue,
-        }
-        var dataToSent = {
-          allData: arrayToSend,
-          temperatureData: temperatureData.body[0].eventData.value,
-        };
-        res.status(200).send(JSON.stringify(dataToSent));
-      } else { res.status(200).send([]); }
+      if (temperatureData.body[0]) { res.status(200).send(temperatureData.body[0]); } else { res.status(200).send([]); }
 
     })
     .catch(err => {
@@ -342,6 +352,36 @@ async function getTemperatureMeraki(req, res, next) {
       res.status(403).send('Temperature sensor error');
     });
 }
+
+/** 
+ * This function will get the historical temperature from Meraki sensor
+ * @param {obj} req 
+ * @param {obj} res 
+ * @param {function} next 
+ */
+ async function getHistoricalTemperatureMeraki(req, res, next) {
+  var deviceSerial = req.query.deviceSerial;
+  var merakiNetworkID = req.query.merakiNetworkID;
+  var metric = req.query.metric;
+  var t0 = req.query.t0;
+  var t1 = req.query.t1;
+  var resolution  = req.query.resolution;
+  superagent.get(`https://api.meraki.com/api/v1/networks/${merakiNetworkID}/sensors/stats/historicalBySensor?metric=${metric}&serial=${deviceSerial}&t0=${t0}&t1=${t1}&resolution=${resolution}`)
+  .set('Content-Type', 'application/x-www-form-urlencoded')
+  .set('X-Cisco-Meraki-API-Key', MERAKI_API_KEY)
+    .auth(FIBARO_USER_NAME, FIBARO_PASSWORD)
+    .then(historicalTempData => {
+
+      // console.log('TempData', TempData.body.properties.value);
+      if (historicalTempData.body) { res.status(200).send(historicalTempData.body); } else { res.status(200).send([]); }
+
+    })
+    .catch(err => {
+      console.log('Historical temp sensor error: ', err);
+      res.status(403).send('Historical temp sensor error');
+    });
+}
+
 
 /** 
  * This function will return humidity from Meraki sensor
@@ -352,13 +392,13 @@ async function getTemperatureMeraki(req, res, next) {
 async function getHumidityMeraki(req, res, next) {
   var deviceSerial = req.query.deviceSerial;
   var merakiNetworkID = req.query.merakiNetworkID;
-  var eventType = req.query.eventType;
-  superagent.get(`https://api.meraki.com/api/v1/networks/${merakiNetworkID}/environmental/events?sensorSerial=${deviceSerial}&perPage=10&includedEventTypes[]=${eventType}`)
+  var metric = req.query.metric;
+  superagent.get(`https://api.meraki.com/api/v1/networks/${merakiNetworkID}/sensors/stats/latestBySensor?metric=${metric}&serial=${deviceSerial}`)
     .set('Content-Type', 'application/x-www-form-urlencoded')
     .set('X-Cisco-Meraki-API-Key', MERAKI_API_KEY)
     .then(humidityData => {
       // console.log('humidityData', humidityData.body);
-      if (humidityData.body[0].eventData) { res.status(200).send(humidityData.body[0].eventData.value); } else { res.status(200).send([]); }
+      if (humidityData.body[0]) { res.status(200).send(humidityData.body[0]); } else { res.status(200).send([]); }
 
     })
     .catch(err => {
@@ -377,13 +417,14 @@ async function getWaterLeakTest(req, res, next) {
   debugger
   var deviceSerial = req.query.deviceSerial;
   var merakiNetworkID = req.query.merakiNetworkID;
-  var eventType = req.query.eventType;
-  superagent.get(`https://api.meraki.com/api/v1/networks/${merakiNetworkID}/environmental/events?sensorSerial=${deviceSerial}&perPage=10&includedEventTypes[]=${eventType}`)
+  var metric = req.query.metric;
+  superagent.get(`https://api.meraki.com/api/v1/networks/${merakiNetworkID}/sensors/stats/latestBySensor?metric=${metric}&serial=${deviceSerial}`)
     .set('Content-Type', 'application/x-www-form-urlencoded')
     .set('X-Cisco-Meraki-API-Key', MERAKI_API_KEY)
     .then(waterLeakData => {
       // console.log('waterLeakData', waterLeakData.body);
-      if (waterLeakData.body[0].eventData) { res.status(200).send(waterLeakData.body[0].eventData.value); } else { res.status(200).send([]); }
+      //if (waterLeakData.body[0].eventData) { res.status(200).send(waterLeakData.body[0].eventData.value); } else { res.status(200).send([]); }
+      if (waterLeakData.body[0]) { res.status(200).send(waterLeakData.body[0]); } else { res.status(200).send([]); }
 
     })
     .catch(err => {
@@ -496,7 +537,7 @@ function recordList(req, res, next) {
         fullFileName.push(fileNameWithoutExt);
         }
       });
-      if (fullFileName) { res.status(200).send(fullFileName); } else { res.status(200).send([]); }
+      if (fullFileName) { res.status(200).send(fullFileName.reverse()); } else { res.status(200).send([]); }
     });
 
   } catch (error) {
