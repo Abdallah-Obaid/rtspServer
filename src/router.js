@@ -1,5 +1,6 @@
 'use strict';
 
+var {mqttFunc}  = require('../mqtt');
 const superagent = require('superagent');
 const express = require('express');
 const router = express.Router();
@@ -24,8 +25,10 @@ router.get('/getDust/', getDust);
 router.get('/getCo2/', getCo2);
 router.get('/getPowerConsumption/', getPowerConsumption);
 router.get('/checkSwitchStatus/', checkSwitchStatus);
-router.post('/postPowerSwitch/', postPowerSwitch);
+router.get('/postPowerSwitch/', postPowerSwitch);
 
+// Akuvox routs
+router.get('/openDoorSwitch/', openDoorSwitch);
 
 // Meraki routs
 router.get('/getTemperatureMeraki/', getTemperatureMeraki);
@@ -34,17 +37,22 @@ router.get('/getHumidityMeraki', getHumidityMeraki);
 router.get('/getWaterLeakTest', getWaterLeakTest);
 router.get('/getDoorStatus', getDoorStatus);
 
-
+// Mqtt routs
+router.get('/runMqtt/', runMqtt);
 
 // Application setup
-const IP_ADDRESS_FOR_FIBARO_SENSORS = process.env.IP_ADDRESS_FOR_FIBARO_SENSORS || '192.168.2.107';  // property  192.168.2.107  192.168.129.11;
+const IP_ADDRESS_FOR_FIBARO_SENSORS = process.env.IP_ADDRESS_FOR_FIBARO_SENSORS || '192.168.128.4';  // property  192.168.2.107  192.168.129.11;
+const IP_ADDRESS_FOR_FIBARO_SENSORS_MERAKI =  process.env.IP_ADDRESS_FOR_FIBARO_SENSORS_MERAKI;
+const IP_ADDRESS_FOR_AKUVOX_DOOR_PHONE = process.env.IP_ADDRESS_FOR_AKUVOX_DOOR_PHONE;
 const FIBARO_PASSWORD = process.env.FIBARO_PASSWORD;
 const FIBARO_USER_NAME = process.env.FIBARO_USER_NAME;
+const FIBARO_PASSWORD_MERAKI = process.env.FIBARO_PASSWORD_MERAKI;
+const FIBARO_USER_NAME_MERAKI = process.env.FIBARO_USER_NAME_MERAKI;
 const CAMERAIP = process.env.CAMERAIP;
 const CAMERAPORT = process.env.CAMERAPORT;
 const MERAKI_API_KEY = process.env.MERAKI_API_KEY;
 const SENSORS_NUMBER = process.env.SENSORS_NUMBER;
-
+console.log(FIBARO_PASSWORD , FIBARO_USER_NAME )
 // Functions definitions
 /** 
  * This function will run rtsp stream
@@ -110,11 +118,9 @@ async function loadRtspStream(req, res, next) {
     await cp.exec('pkill ffmpeg', function (err, stdout, stderr) { console.log('kill error:', err); });
     process.exit(1);
   });
-
   res.send('IT WORK');
-
 }
-loadRtspStream();
+  // loadRtspStream();
 
 /** 
  * This function will get the temperature from Fibaro sensor
@@ -195,9 +201,9 @@ async function getHumidityFibaro(req, res, next) {
  */
 async function getSmoke(req, res, next) {
   var smokeDeviceID = req.query.deviceID;
-  superagent.get(`http://${IP_ADDRESS_FOR_FIBARO_SENSORS}/api/devices/${smokeDeviceID}`)
+  superagent.get(`http://${IP_ADDRESS_FOR_FIBARO_SENSORS_MERAKI}/api/devices/${smokeDeviceID}`)
     .set('Content-Type', 'application/x-www-form-urlencoded')
-    .auth(FIBARO_USER_NAME, FIBARO_PASSWORD)
+    .auth(FIBARO_USER_NAME_MERAKI, FIBARO_PASSWORD_MERAKI)
     .then(smokeData => {
 
       // console.log('smokeData', smokeData.body.properties.value);
@@ -327,6 +333,29 @@ async function postPowerSwitch(req, res, next) {
     });
 }
 
+/** 
+ * This function will open door switch status from Akuvox sensor
+ * @param {obj} req 
+ * @param {obj} res 
+ * @param {function} next 
+ */
+ async function openDoorSwitch(req, res, next) {
+  var doorID = req.query.doorID;
+  var actionName = req.query.actionName;
+  superagent.get(`http://${IP_ADDRESS_FOR_AKUVOX_DOOR_PHONE}/fcgi/do?action=${actionName}&DoorNum=${doorID}`)
+    .set('Content-Type', 'application/x-www-form-urlencoded')
+    .auth(FIBARO_USER_NAME, FIBARO_PASSWORD)
+    .then(openDoorSwitch => {
+
+      console.log('openDoorSwitch', openDoorSwitch.body);
+     if (openDoorSwitch.body) { res.status(200).send(openDoorSwitch.body); } else { res.status(200).send([]); }
+
+   })
+   .catch(err => {
+     console.log('Door switch sensor error: ', err);
+     res.status(403).send('Power switch sensor error');
+   });
+}
 
 /** 
  * This function will return Temperature from Meraki sensor
@@ -556,5 +585,18 @@ function recordList(req, res, next) {
 function sensorsNumber(req, res, next) {
   if (SENSORS_NUMBER) { res.status(200).send(SENSORS_NUMBER); } else { res.status(200).send(0); }
 
+}
+
+/** 
+ * This function will initialize mqtt server
+ * @param {obj} req 
+ * @param {obj} res 
+ * @param {function} next 
+ */
+function runMqtt(){
+  var topic  =  '/merakimv/Q2PV-NCFZ-QY79/raw_detections';
+  var hostIP = 'mqtt://test.mosquitto.org';
+  var clientId = 'PenguinIn';
+  mqttFunc(topic,hostIP,clientId);
 }
 module.exports = router;
