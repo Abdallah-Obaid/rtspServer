@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: routerFunctionality/loadRecordFunctionality.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: routerFunctionality/loadRecordFunctionality.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>
+'use strict';
+
+const fs = require('fs');
+const path = require('path');// to remove .mp4 from file name
+
+// Application setup
+const LOAD_RECOARD_DIRECTORY = process.env.LOAD_RECOARD_DIRECTORY;
+
+// Global Vars
+
+// Functions definitions
+/** 
+* This function will load the recorded video by name
+* @param {obj} req 
+* @param {obj} res 
+* @param {function} next 
+*/
+var loadVideo = function (req, res, next) {
+  var videoNameQ = req.query.videoName;
+  const path = `${LOAD_RECOARD_DIRECTORY}/${videoNameQ}.mp4`;
+  const stat = fs.statSync(path);
+  const fileSize = stat.size;
+  const range = req.headers.range;
+  if (range) {
+    const parts = range.replace(/bytes=/, '').split('-');
+    const start = parseInt(parts[0], 10);
+    const end = parts[1]
+      ? parseInt(parts[1], 10)
+      : fileSize - 1;
+    const chunksize = (end - start) + 1;
+    const file = fs.createReadStream(path, { start, end });
+    const head = {
+      'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+      'Accept-Ranges': 'bytes',
+      'Content-Length': chunksize,
+      'Content-Type': 'video/mp4',
+    };
+    res.writeHead(206, head);
+    file.pipe(res);
+  } else {
+    const head = {
+      'Content-Length': fileSize,
+      'Content-Type': 'video/mp4',
+    };
+    res.writeHead(200, head);
+    fs.createReadStream(path).pipe(res);
+  }
+};
+
+/** 
+* This function will send all the recorded video files-name
+* @param {obj} req 
+* @param {obj} res 
+* @param {function} next 
+*/
+var recordList = function (req, res, next) {
+  try {
+    var filterDate = req.query.filterDate;
+    console.log('filterDate:',filterDate);
+    const testFolder = LOAD_RECOARD_DIRECTORY;
+    var fullFileName = [];
+    fs.readdir(testFolder, (err, files) => {
+      files.forEach(file => {
+        var fileNameWithoutExt = path.parse(file).name;
+        var dateWithoutTime = fileNameWithoutExt.split('_')[0].split('-').join('/');
+        if(filterDate==dateWithoutTime){
+          fullFileName.push(fileNameWithoutExt);
+        }
+      });
+      if (fullFileName) { res.status(200).send(fullFileName.reverse()); } else { res.status(200).send([]); }
+    });
+
+  } catch (error) {
+    console.log('Record list error: ', error);
+    res.status(403).send('Record list error');
+  }
+};
+
+var loadRecordFunctionality = {};
+loadRecordFunctionality.loadVideo=loadVideo;
+loadRecordFunctionality.recordList=recordList;
+module.exports = loadRecordFunctionality;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#checkAcSwitchStatus">checkAcSwitchStatus</a></li><li><a href="global.html#checkSwitchStatus">checkSwitchStatus</a></li><li><a href="global.html#getCo2">getCo2</a></li><li><a href="global.html#getDoorStatus">getDoorStatus</a></li><li><a href="global.html#getDust">getDust</a></li><li><a href="global.html#getHistoricalHumidityMeraki">getHistoricalHumidityMeraki</a></li><li><a href="global.html#getHistoricalPowerConsumption">getHistoricalPowerConsumption</a></li><li><a href="global.html#getHistoricalTemperatureFibaro">getHistoricalTemperatureFibaro</a></li><li><a href="global.html#getHistoricalTemperatureMeraki">getHistoricalTemperatureMeraki</a></li><li><a href="global.html#getHistoricalWaterLeakMeraki">getHistoricalWaterLeakMeraki</a></li><li><a href="global.html#getHumidity">getHumidity</a></li><li><a href="global.html#getHumidityFibaro">getHumidityFibaro</a></li><li><a href="global.html#getHumidityMeraki">getHumidityMeraki</a></li><li><a href="global.html#getPower">getPower</a></li><li><a href="global.html#getPowerConsumption">getPowerConsumption</a></li><li><a href="global.html#getSmoke">getSmoke</a></li><li><a href="global.html#getSoundAlarm">getSoundAlarm</a></li><li><a href="global.html#getTemp">getTemp</a></li><li><a href="global.html#getTemperatureFibaro">getTemperatureFibaro</a></li><li><a href="global.html#getTemperatureMeraki">getTemperatureMeraki</a></li><li><a href="global.html#getWaterLeakTest">getWaterLeakTest</a></li><li><a href="global.html#loadAlertService">loadAlertService</a></li><li><a href="global.html#loadHistoricalDataService">loadHistoricalDataService</a></li><li><a href="global.html#loadRtspStream">loadRtspStream</a></li><li><a href="global.html#loadVideo">loadVideo</a></li><li><a href="global.html#mqttFunc">mqttFunc</a></li><li><a href="global.html#openDoorSwitch">openDoorSwitch</a></li><li><a href="global.html#postPowerSwitch">postPowerSwitch</a></li><li><a href="global.html#recordList">recordList</a></li><li><a href="global.html#restartStream">restartStream</a></li><li><a href="global.html#rtspStreamRestartingInterval">rtspStreamRestartingInterval</a></li><li><a href="global.html#runMqtt">runMqtt</a></li><li><a href="global.html#saveAcSwitchStatusHistorical">saveAcSwitchStatusHistorical</a></li><li><a href="global.html#saveFireAlarm">saveFireAlarm</a></li><li><a href="global.html#saveSwitchStatusHistorical">saveSwitchStatusHistorical</a></li><li><a href="global.html#sensorsNumber">sensorsNumber</a></li><li><a href="global.html#stopAlertService">stopAlertService</a></li><li><a href="global.html#stopHistoricalDataService">stopHistoricalDataService</a></li><li><a href="global.html#stopMqtt">stopMqtt</a></li><li><a href="global.html#stopMqttService">stopMqttService</a></li><li><a href="global.html#stopStreamService">stopStreamService</a></li><li><a href="global.html#SwitchAcSwitchSonOff">SwitchAcSwitchSonOff</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Thu Aug 26 2021 16:59:45 GMT+0300 (Eastern European Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

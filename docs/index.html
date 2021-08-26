@@ -19,195 +19,78 @@
 
     <h1 class="page-title">Home</h1>
 
+    <h2 class="page-description">Version: 1.1.0</h2>
+    <h2 class="page-description">Description</h2>
+    <p class="page-paragraph">This is a web API server build with nodeJS to handle the RTSP streaming/recording and get/post from/to Meraki, Fibaro, SonOff and Akuvox sensors in CMS IOT solution.</p>
+    <h2 class="page-description">MiddleWare</h2>
+        <ul>
+            <pre>- 404.js: To handle the **Not Found** errors.</pre>
+            <pre>- 500.js: To handle the **Internal Server** errors.</pre>
+            <pre>- Timestamp.js: Add timestamp for each request.</pre>
+            <pre>- There are no middlewares for **Authentication/Authorization**.</pre>
+        </ul>
+    <h2 class="page-description">Models</h2>  
+    <p class="page-paragraph">- This API doesnt have any **DB** models.</p>
+  
+    <h2 class="page-description">Network UML diagram</h2>
+    <img class="uml_img" src="./files/ciscoDashboardUML.png" alt="">
+
+    <h2 class="page-description">Routes "End-points"</h2>
+    <p class="page-paragraph"><a href="./files/RTSP_Node_APIs.postman_collection.json">Postman collection</a></p>
+    
+    <h2 class="page-description">Services</h2>
+    <p class="page-paragraph">- Node server now have four main services:</p>
+    <ul> 
+        <pre>1. RTSP stream and record camera videos.</pre>
+        <pre>2. Alert service.</pre>
+        <pre>3. Sound alarm “Mqtt” service.</pre>
+        <pre>4. Save historical data to CMS DB service.</pre>
+     </ul>
+     <p class="page-paragraph">- You can active or deactivate any service from the “.env” file by toggle state from true-false or you can start or stop services using node.js API.</p>
+
+    <h2 class="page-description">Folders files tree</h2>
+        <ul>
+        <pre>.</pre>
+        <pre>├── LICENSE                            // Mit license “must be change if we go to production”</pre>
+        <pre>├── README.md                          // Markdown file contain some information about project</pre>
+        <pre>├── docs                               // JSdoc container</pre>
+        <pre>├── index.js                           // Main server file</pre>
+        <pre>├── node_modules                       // Dependences container</pre>
+        <pre>├── package-lock.json                </pre>
+        <pre>├── package.json                       // Run scripts, and identify the entry point to our package.</pre>
+        <pre>├── public                             // Static front-end file container</pre>
+        <pre>│   ├── index.html</pre>
+        <pre>│   ├── jsmpeg.js</pre>
+        <pre>│   ├── jsmpeg.min.js</pre>
+        <pre>│   └── styles.css</pre>
+        <pre>├── recorded_videos                    // Recorded videos container</pre>
+        <pre>│   └── 29-07-2021_15-13-30.mp4</pre>
+        <pre>├── src                                // Back-end JS files</pre>
+        <pre>│   ├── enum                           // Enumerators</pre>
+        <pre>│   ├── helpers                        // Helper functions</pre>
+        <pre>│   ├── lib                            // Installed and modified packages mainly for RTSP stream</pre>
+        <pre>│   ├── middleware                     // Middleware container</pre>
+        <pre>│   ├── router.js                      // API call handler “Callback a function when endpoint called”</pre>
+        <pre>│   ├── routerFunctionality            // Function definition for router.js file</pre>
+        <pre>│   ├── server.js                      // Server configuration and start listening to port for server</pre>
+        <pre>│   └── services                       // Node.js services like RTSP stream and Alert service</pre>
+        <pre>└── views                              // Contain view “ejs” for data template “not used in this project”</pre>
+        <pre>    └── index.ejs</pre>
+        </ul>
+        
+
+
+
+
+
+
+
+
+
     
 
 
 
-    
-
-
-    <h3> </h3>
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-    <section>
-        <article><h1>SENSORS-RTSP NODEJS SERVER FOR CISCO DASHBOARD</h1>
-<h2>Description</h2>
-<p>This is a web API build with nodeJS to handle the RTSP streaming and get/post from/to sensors in Meraki and Fibaro solutions.</p>
-<h2>Project features</h2>
-<p>An attendance management system that lets you track your employers.
-Time off and vacation tracking that allows teams to easily request time off, view balances, and get approval.</p>
-<h2>MiddleWare</h2>
-<ul>
-<li>404.js: To handle the <strong>Not Found</strong> errors.</li>
-<li>500.js: To handle the <strong>Internal Server</strong> errors.</li>
-<li>Timestamp.js: Add timestamp for each request.</li>
-<li>There are no middlewares for <strong>Authentication/Authorization</strong>.</li>
-</ul>
-<h2>Models</h2>
-<ul>
-<li>This API doesnt have any <strong>DB</strong> models.</li>
-</ul>
-<h1>UML</h1>
-<p><a href="https://lucid.app/publicSegments/view/4c87494b-17b0-444b-9a0f-b0d5a61931f8/image.png">UML</a></p>
-<p><a href="./out/global.html">jsdoc</a></p>
-<h1>Routes&quot;End-points&quot;</h1>
-<h3>get('/getTemperature?deviceID=27')</h3>
-<ul>
-<li>
-<p>This endpoint will return the instantaneous <strong>Temperature</strong> in real-time from <strong>Fibaro</strong> API.</p>
-</li>
-<li>
-<p>Example Response :</p>
-<blockquote>
-<p>&quot;24.40&quot;</p>
-</blockquote>
-</li>
-</ul>
-<h3>get('/getSmoke?deviceID=31')</h3>
-<ul>
-<li>
-<p>This endpoint will return the instantaneous <strong>Smoke Data</strong>  &quot;true/false&quot; string in real-time from <strong>Fibaro</strong> API.</p>
-</li>
-<li>
-<p>Example Response :</p>
-<blockquote>
-<p>&quot;false&quot;</p>
-</blockquote>
-</li>
-</ul>
-<h3>get('/getPowerConsumption?deviceID=11')</h3>
-<ul>
-<li>
-<p>This endpoint will return the historical <strong>Power Consumption Data</strong>  &quot;true/false&quot; string until the real-time from <strong>Fibaro</strong> API.</p>
-</li>
-<li>
-<p>Example Response :</p>
-<blockquote>
-<p>[
-[
-1619322755000,
-0
-],
-[
-1619352387000,
-2
-],
-[
-1619352397000,
-24.3
-],
-]</p>
-</blockquote>
-</li>
-</ul>
-<h3>get('/getWaterLeakTest?merakiNetworkID=L_676102894059002XXX&amp;deviceSerial=Q3CB-F4C4-L9SF')</h3>
-<ul>
-<li>
-<p>This endpoint will return the instantaneous <strong>Water Leak Test</strong> result &quot;true/false&quot; string in real-time from <strong>Meraki</strong> API.</p>
-</li>
-<li>
-<p>Example Response :</p>
-<blockquote>
-<p>&quot;30.0&quot;</p>
-</blockquote>
-</li>
-</ul>
-<h3>get('/getDoorStatus?merakiNetworkID=L_676102894059002XXX&amp;deviceSerial=Q3CC-WBJK-UAU7')</h3>
-<ul>
-<li>
-<p>This endpoint will return the historical <strong>Door Status</strong> result &quot;0/1&quot; until the real-time from <strong>Meraki</strong> API.</p>
-</li>
-<li>
-<p>Example Response :</p>
-<blockquote>
-<p>[
-{
-&quot;occurredAt&quot;: &quot;2021-04-21T15:06:29.000000Z&quot;,
-&quot;networkId&quot;: &quot;676102894059023230&quot;,
-&quot;type&quot;: &quot;mt_door&quot;,
-&quot;description&quot;: &quot;Door event&quot;,
-&quot;sensorSerial&quot;: &quot;Q3CC-WBJK-UAU7&quot;,
-&quot;gatewaySerial&quot;: &quot;Q2PV-NCFZ-QY79&quot;,
-&quot;eventData&quot;: {
-&quot;value&quot;: &quot;0.0&quot;
-},
-&quot;lastMatchingEvent&quot;: {
-&quot;occurredAt&quot;: &quot;2021-04-21T15:06:00.000000Z&quot;
-}
-},
-{
-&quot;occurredAt&quot;: &quot;2021-04-21T15:06:00.000000Z&quot;,
-&quot;networkId&quot;: &quot;676102894059023230&quot;,
-&quot;type&quot;: &quot;mt_door&quot;,
-&quot;description&quot;: &quot;Door event&quot;,
-&quot;sensorSerial&quot;: &quot;Q3CC-WBJK-UAU7&quot;,
-&quot;gatewaySerial&quot;: &quot;Q2PV-NCFZ-QY79&quot;,
-&quot;eventData&quot;: {
-&quot;value&quot;: &quot;1.0&quot;
-},
-&quot;lastMatchingEvent&quot;: {
-&quot;occurredAt&quot;: &quot;2021-04-13T13:51:22.000000Z&quot;
-}
-},
-]</p>
-</blockquote>
-<h3>get('/loadRtspStream')</h3>
-</li>
-<li>
-<p>This endpoint will start the reading from <strong>RTSP</strong> stream &quot;For a camera&quot; and open a socket stream with front end.</p>
-</li>
-<li>
-<p>Example Response :</p>
-<blockquote>
-<p>Video stream using socket protocol.</p>
-</blockquote>
-</li>
-</ul>
-<h3>post('/postPowerSwitch')</h3>
-<ul>
-<li>
-<p>This endpoint will switch the light (on/off) <strong>Fibaro</strong> API.</p>
-</li>
-<li>
-<p>Example request :</p>
-<blockquote>
-<p>var deviceID = 11;
-var PowerSwitch = await $.ajax({
-method: 'POST',
-url: nodeHostURL + <code>/postPowerSwitch?</code> + $.param({deviceID: deviceID,   actionName: actionName}),
-data: {
-deviceID: deviceID,
-actionName: actionName,
-},
-});</p>
-</blockquote>
-</li>
-<li>
-<p>Example Response :</p>
-<blockquote>
-<p>{result: 0}</p>
-</blockquote>
-</li>
-</ul>
-<h1>Testing</h1>
-<ul>
-<li>eslint</li>
-</ul>
-<h2>rtspServer: <a href="https://github.com/Abdallah-Obaid/rtspServer">GitHub-link</a></h2></article>
-    </section>
 
 
 
@@ -217,13 +100,13 @@ actionName: actionName,
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#checkSwitchStatus">checkSwitchStatus</a></li><li><a href="global.html#getDoorStatus">getDoorStatus</a></li><li><a href="global.html#getHumidity">getHumidity</a></li><li><a href="global.html#getPowerConsumption">getPowerConsumption</a></li><li><a href="global.html#getSmoke">getSmoke</a></li><li><a href="global.html#getTemperature">getTemperature</a></li><li><a href="global.html#getWaterLeakTest">getWaterLeakTest</a></li><li><a href="global.html#loadRtspStream">loadRtspStream</a></li><li><a href="global.html#postPowerSwitch">postPowerSwitch</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Function docs</h3><ul><li><a href="global.html#checkAcSwitchStatus">checkAcSwitchStatus</a></li><li><a href="global.html#checkSwitchStatus">checkSwitchStatus</a></li><li><a href="global.html#getCo2">getCo2</a></li><li><a href="global.html#getDoorStatus">getDoorStatus</a></li><li><a href="global.html#getDust">getDust</a></li><li><a href="global.html#getHistoricalHumidityMeraki">getHistoricalHumidityMeraki</a></li><li><a href="global.html#getHistoricalPowerConsumption">getHistoricalPowerConsumption</a></li><li><a href="global.html#getHistoricalTemperatureFibaro">getHistoricalTemperatureFibaro</a></li><li><a href="global.html#getHistoricalTemperatureMeraki">getHistoricalTemperatureMeraki</a></li><li><a href="global.html#getHistoricalWaterLeakMeraki">getHistoricalWaterLeakMeraki</a></li><li><a href="global.html#getHumidity">getHumidity</a></li><li><a href="global.html#getHumidityFibaro">getHumidityFibaro</a></li><li><a href="global.html#getHumidityMeraki">getHumidityMeraki</a></li><li><a href="global.html#getPower">getPower</a></li><li><a href="global.html#getPowerConsumption">getPowerConsumption</a></li><li><a href="global.html#getSmoke">getSmoke</a></li><li><a href="global.html#getSoundAlarm">getSoundAlarm</a></li><li><a href="global.html#getTemp">getTemp</a></li><li><a href="global.html#getTemperatureFibaro">getTemperatureFibaro</a></li><li><a href="global.html#getTemperatureMeraki">getTemperatureMeraki</a></li><li><a href="global.html#getWaterLeakTest">getWaterLeakTest</a></li><li><a href="global.html#loadAlertService">loadAlertService</a></li><li><a href="global.html#loadHistoricalDataService">loadHistoricalDataService</a></li><li><a href="global.html#loadRtspStream">loadRtspStream</a></li><li><a href="global.html#loadVideo">loadVideo</a></li><li><a href="global.html#mqttFunc">mqttFunc</a></li><li><a href="global.html#openDoorSwitch">openDoorSwitch</a></li><li><a href="global.html#postPowerSwitch">postPowerSwitch</a></li><li><a href="global.html#recordList">recordList</a></li><li><a href="global.html#restartStream">restartStream</a></li><li><a href="global.html#rtspStreamRestartingInterval">rtspStreamRestartingInterval</a></li><li><a href="global.html#runMqtt">runMqtt</a></li><li><a href="global.html#saveAcSwitchStatusHistorical">saveAcSwitchStatusHistorical</a></li><li><a href="global.html#saveFireAlarm">saveFireAlarm</a></li><li><a href="global.html#saveSwitchStatusHistorical">saveSwitchStatusHistorical</a></li><li><a href="global.html#sensorsNumber">sensorsNumber</a></li><li><a href="global.html#stopAlertService">stopAlertService</a></li><li><a href="global.html#stopHistoricalDataService">stopHistoricalDataService</a></li><li><a href="global.html#stopMqtt">stopMqtt</a></li><li><a href="global.html#stopMqttService">stopMqttService</a></li><li><a href="global.html#stopStreamService">stopStreamService</a></li><li><a href="global.html#SwitchAcSwitchSonOff">SwitchAcSwitchSonOff</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Mon Apr 26 2021 11:22:01 GMT+0300 (Eastern European Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Thu Aug 26 2021 16:59:45 GMT+0300 (Eastern European Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>

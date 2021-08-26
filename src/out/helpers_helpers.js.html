@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: helpers/helpers.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: helpers/helpers.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>'use strict';
+const superagent = require('superagent');
+const CMS_URL = process.env.CMS_URL;
+const SensorAlertSeverityEnum = require('../enum/sensorAlertSeverityEnum.js');
+var helpers = {};
+
+/** 
+ * This function will send alerts to Cms DB
+ */
+helpers.alertSender= function(typeId,readingValue,readingStatus,alertSeverity,readingDate){
+  superagent.post(`${CMS_URL}/Alerts/SaveAlert`)
+    .send({ TypeId: typeId, Description: readingValue ,ReadingStatus: readingStatus,Severity: alertSeverity, AlarmDate: readingDate })
+    // .set('Content-Type', 'application/x-www-form-urlencoded')
+    .then(done => {
+      console.log('Alert sent: ',{ TypeId: typeId, Description: readingValue ,ReadingStatus: readingStatus, Severity: alertSeverity, AlarmDate: readingDate });
+      console.log('Alert sent: ',`${CMS_URL}/Alerts/SaveAlert`);
+    })
+    .catch(err => {
+      console.log('Alert sending error: ', err);
+
+    });
+};
+
+/** 
+ * This function will get the thresholds for alerts from Cms DB
+ */
+helpers.getThresholds= async function() {
+  var thresholdsData = await superagent.get(`${CMS_URL}/Alerts/GetAlertThresholds`)
+    .then(thresholds => {
+      return thresholds.body;
+    })
+    .catch(err => {
+      console.log('Thresholds for alert error: ', err);
+    });
+  return thresholdsData;
+};
+
+/**
+ * This function will send switch logs to CMS DB
+ * @param {Number} typeId 
+ * @param {Number} actionId 
+ * @param {Number} userId 
+ * @param {Number} roomId 
+ * @param {Number} buildingId 
+ */
+helpers.switchLogGenerator= function(typeId,actionId,userId,roomId,buildingId){
+  superagent.post(`${CMS_URL}/Dashboard/SaveLog`)
+    .send({ TypeId: typeId, ActionId: actionId,ActionUserId:userId,VenueId:roomId,CampusId:buildingId })
+    // .set('Content-Type', 'application/x-www-form-urlencoded')
+    .then(done => {
+      console.log('Log generated: ',typeId);
+    })
+    .catch(err => {
+      console.log('Log generator error: ', err);
+    });
+};
+
+/**
+ * This function will save history for sensors and switches to CMS DB
+ * @param {Number} typeId 
+ * @param {Number} readingValue 
+ * @param {Number} readingStatus 
+ * @param {Date} readingDate 
+ */
+helpers.historicalDataGenerator= function(typeId,readingValue,readingStatus,readingDate){
+  superagent.post(`${CMS_URL}/Alerts/SaveHistoryRecord`)
+    .send({ TypeId: typeId, ReadingValue: readingValue ,ReadingStatus: readingStatus, ReadingDate: readingDate })
+    // .set('Content-Type', 'application/x-www-form-urlencoded')
+    .then(done => {
+      console.log('Data appended sent: ',typeId);
+    })
+    .catch(err => {
+      console.log('Historical data append error: ', err);
+    });
+};
+
+/**
+ * This function will calculate the severity
+ * @param {Number} value 
+ * @param {Number} severityWindow 
+ * @param {Number} above 
+ * @param {Number} bellow 
+ * @returns Object
+ */
+helpers.getSeverity = function(value, severityWindow, above, bellow){
+  var highA= above + 2*severityWindow;
+  var highB = bellow - 2*severityWindow;
+  var meduimA= above + 1*severityWindow;
+  var meduimB = bellow - 1*severityWindow;
+  var result;
+  if (value > highA || value &lt; highB){
+    result = SensorAlertSeverityEnum.alertSeverity.high;
+  }
+  if ((value > meduimA &amp;&amp; value &lt;= highA) || ( value &lt; meduimB &amp;&amp; value >= highB)){
+    result = SensorAlertSeverityEnum.alertSeverity.medium;
+  }
+  if ((value >= above &amp;&amp; value &lt;= meduimA) ||(value &lt;= bellow &amp;&amp; value >= meduimB)){
+    result = SensorAlertSeverityEnum.alertSeverity.low;
+  }
+  if ((value > bellow  &amp;&amp; value &lt; above )){ //unused case
+    result = SensorAlertSeverityEnum.alertSeverity.normal;
+  }
+  return result;
+};
+
+/**
+ * This function will check for severity change
+ * @param {Number} value 
+ * @param {Number} severityWindow 
+ * @param {Number} above 
+ * @param {Number} bellow 
+ * @param {Number} oldSeverity 
+ */
+helpers.checkSeverityChanged = function(value,severityWindow,above,bellow,oldSeverity){
+  var result;
+  var newSeverity = helpers.getSeverity(Number(value),severityWindow,above,bellow);
+  if (oldSeverity == newSeverity){
+    result = false;
+  }
+  else{
+    result = true;  
+  }
+  return result;
+};
+module.exports = helpers;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#checkAcSwitchStatus">checkAcSwitchStatus</a></li><li><a href="global.html#checkSwitchStatus">checkSwitchStatus</a></li><li><a href="global.html#getCo2">getCo2</a></li><li><a href="global.html#getDoorStatus">getDoorStatus</a></li><li><a href="global.html#getDust">getDust</a></li><li><a href="global.html#getHistoricalHumidityMeraki">getHistoricalHumidityMeraki</a></li><li><a href="global.html#getHistoricalPowerConsumption">getHistoricalPowerConsumption</a></li><li><a href="global.html#getHistoricalTemperatureFibaro">getHistoricalTemperatureFibaro</a></li><li><a href="global.html#getHistoricalTemperatureMeraki">getHistoricalTemperatureMeraki</a></li><li><a href="global.html#getHistoricalWaterLeakMeraki">getHistoricalWaterLeakMeraki</a></li><li><a href="global.html#getHumidity">getHumidity</a></li><li><a href="global.html#getHumidityFibaro">getHumidityFibaro</a></li><li><a href="global.html#getHumidityMeraki">getHumidityMeraki</a></li><li><a href="global.html#getPower">getPower</a></li><li><a href="global.html#getPowerConsumption">getPowerConsumption</a></li><li><a href="global.html#getSmoke">getSmoke</a></li><li><a href="global.html#getSoundAlarm">getSoundAlarm</a></li><li><a href="global.html#getTemp">getTemp</a></li><li><a href="global.html#getTemperatureFibaro">getTemperatureFibaro</a></li><li><a href="global.html#getTemperatureMeraki">getTemperatureMeraki</a></li><li><a href="global.html#getWaterLeakTest">getWaterLeakTest</a></li><li><a href="global.html#loadAlertService">loadAlertService</a></li><li><a href="global.html#loadHistoricalDataService">loadHistoricalDataService</a></li><li><a href="global.html#loadRtspStream">loadRtspStream</a></li><li><a href="global.html#loadVideo">loadVideo</a></li><li><a href="global.html#mqttFunc">mqttFunc</a></li><li><a href="global.html#openDoorSwitch">openDoorSwitch</a></li><li><a href="global.html#postPowerSwitch">postPowerSwitch</a></li><li><a href="global.html#recordList">recordList</a></li><li><a href="global.html#restartStream">restartStream</a></li><li><a href="global.html#rtspStreamRestartingInterval">rtspStreamRestartingInterval</a></li><li><a href="global.html#runMqtt">runMqtt</a></li><li><a href="global.html#saveAcSwitchStatusHistorical">saveAcSwitchStatusHistorical</a></li><li><a href="global.html#saveFireAlarm">saveFireAlarm</a></li><li><a href="global.html#saveSwitchStatusHistorical">saveSwitchStatusHistorical</a></li><li><a href="global.html#sensorsNumber">sensorsNumber</a></li><li><a href="global.html#stopAlertService">stopAlertService</a></li><li><a href="global.html#stopHistoricalDataService">stopHistoricalDataService</a></li><li><a href="global.html#stopMqtt">stopMqtt</a></li><li><a href="global.html#stopMqttService">stopMqttService</a></li><li><a href="global.html#stopStreamService">stopStreamService</a></li><li><a href="global.html#SwitchAcSwitchSonOff">SwitchAcSwitchSonOff</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Thu Aug 26 2021 16:44:36 GMT+0300 (Eastern European Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

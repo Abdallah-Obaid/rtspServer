@@ -356,3 +356,16 @@ tr > th:last-child { border-right: 1px solid #ddd; }
 .disabled {
     color: #454545;
 }
+.page-description{
+    font-family: 'Open Sans Light', sans-serif;
+    font-size: 24px;
+    margin: 12px 24px 20px;
+}
+.page-paragraph{
+    font-family:'Open Sans Light', sans-serif;
+    font-size:17px;
+    margin:12px 24px 20px;
+}
+.uml_img{
+    width: 99%;
+}

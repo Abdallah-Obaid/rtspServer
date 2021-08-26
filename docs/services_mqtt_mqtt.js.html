@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: services/mqtt/mqtt.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: services/mqtt/mqtt.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>'use strict';
+var mqtt  = require('mqtt');
+const SensorTypeEnum = require('../../enum/sensorTypeEnum.js');
+const SensorAlertSeverityEnum = require('../../enum/sensorAlertSeverityEnum');
+const helpers = require('../../helpers/helpers');
+
+// Global vars
+var MqttTester={};
+var soundAlarm = 'noFire';
+var switchOff = 20000; // 20sec
+var allowedTimeSecDiff = 10; // Its clear on name
+var client;
+MqttTester.soundAlarm=soundAlarm;
+
+/**
+ * This function will start Mqtt service
+ * @param {String} topic 
+ * @param {String} hostIP 
+ * @param {String} port 
+ * @param {String} clientId 
+ */
+var mqttFunc = function (topic,hostIP,port,clientId){
+  // var topic =  topic;
+  var options = {
+    port: port,
+    clientId: clientId,
+
+  };
+  if(client){client.end();}
+  client  = mqtt.connect(hostIP,port,options);
+  client.on('connect',function(){	
+    console.log('connected');
+    client.subscribe(topic,{qos:1});
+    client.on('message',function(topic, message, packet){
+    // console.log("message",message)
+      var jsonArr=JSON.parse(message);
+      console.log('jsonArr',jsonArr);
+      //  if (jsonArr.class == "fireAlarm"){
+      //   if(jsonArr.objects){
+      //     if (jsonArr.objects[0]) {
+      //     if (jsonArr.objects[0].type == "person"){
+      //       // console.log("fireAlarm")
+      //       soundAlarm = 'fireAlarm';
+      //       MqttTester.soundAlarm=soundAlarm;
+      //   }
+      // }
+      if(jsonArr){
+        var dateNowSec = Math.floor(new Date().getTime() / 1000);
+        var timeDiff = dateNowSec-Math.floor(jsonArr.ts);
+        // console.log(timeDiff);
+        if (jsonArr.class == 'fireAlarm' &amp;&amp; (timeDiff &lt;= allowedTimeSecDiff) ){
+        // console.log("fireAlarm")
+          soundAlarm = 'fireAlarm';
+          // console.log(soundAlarm);
+          MqttTester.soundAlarm=soundAlarm;
+          helpers.alertSender(SensorTypeEnum.sensorType.fire,'fireAlarm',SensorAlertSeverityEnum.alertSeverity.high,new Date());
+
+          setTimeout(()=>{
+            soundAlarm = 'noFire'; 
+            // console.log(soundAlarm);
+            MqttTester.soundAlarm=soundAlarm;        
+          },switchOff);
+        }
+      }else{
+      // console.log("noFire")
+        soundAlarm = 'noFire';
+        MqttTester.soundAlarm=soundAlarm;
+      }
+
+
+
+    });
+    client.on('error',function(error){ console.log('Can\'t connect'+error);});
+  // client.end();
+  });
+
+};
+
+// { objects:
+//   [ { confidence: 53,
+//       frame: 18201699,
+//       oid: 837,
+//       type: 'person',
+//       x0: 0.639,
+//       x1: 0.577,
+//       y0: 0.283,
+//       y1: 0.184 } ],
+//  ts: 1622027970650 }
+
+/**
+ * This function used to stop Mqtt service
+ * @returns String
+ */
+var stopMqtt = function (){
+  if(client){client.end();
+    client=null;
+    return 'Mqtt service stopped successfully';
+  }else{
+    return 'Mqtt service already closed';
+  }
+};
+
+MqttTester.mqttFunc=mqttFunc;
+MqttTester.stopMqtt=stopMqtt;
+module.exports = MqttTester;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#checkAcSwitchStatus">checkAcSwitchStatus</a></li><li><a href="global.html#checkSwitchStatus">checkSwitchStatus</a></li><li><a href="global.html#getCo2">getCo2</a></li><li><a href="global.html#getDoorStatus">getDoorStatus</a></li><li><a href="global.html#getDust">getDust</a></li><li><a href="global.html#getHistoricalHumidityMeraki">getHistoricalHumidityMeraki</a></li><li><a href="global.html#getHistoricalPowerConsumption">getHistoricalPowerConsumption</a></li><li><a href="global.html#getHistoricalTemperatureFibaro">getHistoricalTemperatureFibaro</a></li><li><a href="global.html#getHistoricalTemperatureMeraki">getHistoricalTemperatureMeraki</a></li><li><a href="global.html#getHistoricalWaterLeakMeraki">getHistoricalWaterLeakMeraki</a></li><li><a href="global.html#getHumidity">getHumidity</a></li><li><a href="global.html#getHumidityFibaro">getHumidityFibaro</a></li><li><a href="global.html#getHumidityMeraki">getHumidityMeraki</a></li><li><a href="global.html#getPower">getPower</a></li><li><a href="global.html#getPowerConsumption">getPowerConsumption</a></li><li><a href="global.html#getSmoke">getSmoke</a></li><li><a href="global.html#getSoundAlarm">getSoundAlarm</a></li><li><a href="global.html#getTemp">getTemp</a></li><li><a href="global.html#getTemperatureFibaro">getTemperatureFibaro</a></li><li><a href="global.html#getTemperatureMeraki">getTemperatureMeraki</a></li><li><a href="global.html#getWaterLeakTest">getWaterLeakTest</a></li><li><a href="global.html#loadAlertService">loadAlertService</a></li><li><a href="global.html#loadHistoricalDataService">loadHistoricalDataService</a></li><li><a href="global.html#loadRtspStream">loadRtspStream</a></li><li><a href="global.html#loadVideo">loadVideo</a></li><li><a href="global.html#mqttFunc">mqttFunc</a></li><li><a href="global.html#openDoorSwitch">openDoorSwitch</a></li><li><a href="global.html#postPowerSwitch">postPowerSwitch</a></li><li><a href="global.html#recordList">recordList</a></li><li><a href="global.html#restartStream">restartStream</a></li><li><a href="global.html#rtspStreamRestartingInterval">rtspStreamRestartingInterval</a></li><li><a href="global.html#runMqtt">runMqtt</a></li><li><a href="global.html#saveAcSwitchStatusHistorical">saveAcSwitchStatusHistorical</a></li><li><a href="global.html#saveFireAlarm">saveFireAlarm</a></li><li><a href="global.html#saveSwitchStatusHistorical">saveSwitchStatusHistorical</a></li><li><a href="global.html#sensorsNumber">sensorsNumber</a></li><li><a href="global.html#stopAlertService">stopAlertService</a></li><li><a href="global.html#stopHistoricalDataService">stopHistoricalDataService</a></li><li><a href="global.html#stopMqtt">stopMqtt</a></li><li><a href="global.html#stopMqttService">stopMqttService</a></li><li><a href="global.html#stopStreamService">stopStreamService</a></li><li><a href="global.html#SwitchAcSwitchSonOff">SwitchAcSwitchSonOff</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Thu Aug 26 2021 16:59:45 GMT+0300 (Eastern European Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

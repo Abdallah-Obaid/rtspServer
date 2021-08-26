@@ -14,6 +14,7 @@ const err500 = require('./middleware/500.js');
 const timestamp = require('./middleware/timestamp.js');
 const userRouters = require('./router.js');
 
+
 /////////////////////////////////////////////////////////////
 
 app.use(express.static('./public'));
@@ -37,14 +38,7 @@ console.log('try to connect');
 module.exports = {
   server: app,
   start: (port) => {
-    const PORT = port || process.env.PORT || 4000;
+    const PORT = port || process.env.PORT || 4444;
     server.listen(PORT,'0.0.0.0', () => { console.log(`Listening on port ${PORT}`); });
   },
 };
-
-
-
-
-
-
-

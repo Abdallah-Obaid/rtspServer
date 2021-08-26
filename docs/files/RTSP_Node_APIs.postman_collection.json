@@ -1,0 +1,879 @@
+{
+	"info": {
+		"_postman_id": "86394175-91dc-4a15-83d0-96f166adb12b",
+		"name": "RTSP Node APIs",
+		"description": "This is a web API server build with nodeJS to handle the RTSP streaming/recording and get/post from/to Meraki, Fibaro, SonOff and Akuvox sensors in CMS IOT solution.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "General",
+			"item": [
+				{
+					"name": "Sensors Number",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Node_URL}}sensorsNumber",
+							"host": [
+								"{{Node_URL}}sensorsNumber"
+							]
+						},
+						"description": "This API call will send the number of sensor witch are saved .env file."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Video",
+			"item": [
+				{
+					"name": "Record List",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Node_URL}}recordList?filterDate=09/08/2021",
+							"host": [
+								"{{Node_URL}}recordList"
+							],
+							"query": [
+								{
+									"key": "filterDate",
+									"value": "09/08/2021",
+									"description": "DD/MM/YYYY"
+								}
+							]
+						},
+						"description": "This API call will get the stored recorded videos files names."
+					},
+					"response": []
+				},
+				{
+					"name": "Load Video",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Node_URL}}recordedVideo?videoName=02-08-2021_10-47-41",
+							"host": [
+								"{{Node_URL}}recordedVideo"
+							],
+							"query": [
+								{
+									"key": "videoName",
+									"value": "02-08-2021_10-47-41",
+									"description": "DD-MM-YYYY_HH-MM-SS"
+								}
+							]
+						},
+						"description": "This API call for loading a recorded video."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Fibaro Sensors In Meraki",
+			"item": [
+				{
+					"name": "Get Power Consumption From Fibaro in Meraki",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Node_URL}}getPowerConsumption?deviceID=58&deviceIDAmpere=70&deviceIDVolt=69",
+							"host": [
+								"{{Node_URL}}getPowerConsumption"
+							],
+							"query": [
+								{
+									"key": "deviceID",
+									"value": "58",
+									"description": "main device ID"
+								},
+								{
+									"key": "deviceIDAmpere",
+									"value": "70",
+									"description": "ampere sensor ID"
+								},
+								{
+									"key": "deviceIDVolt",
+									"value": "69",
+									"description": "vlot device ID"
+								}
+							]
+						},
+						"description": "This API call will get instantaneous read for \"Ampere, Volt, Watt\"."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Smoke Status From Fibaro in Meraki",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Node_URL}}getSmoke?deviceID=36",
+							"host": [
+								"{{Node_URL}}getSmoke"
+							],
+							"query": [
+								{
+									"key": "deviceID",
+									"value": "36",
+									"description": "main device ID"
+								}
+							]
+						},
+						"description": "This API call will check the status of smoke \"for fire alarm\" from smoke alert sensor."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Dust From Fibaro in Meraki",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Node_URL}}getDust?deviceID=46",
+							"host": [
+								"{{Node_URL}}getDust"
+							],
+							"query": [
+								{
+									"key": "deviceID",
+									"value": "46",
+									"description": "main device ID"
+								}
+							]
+						},
+						"description": "This API call to get dust value from multi sensor device."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Co2 From Fibaro in Meraki",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Node_URL}}checkSwitchStatus?deviceID=44",
+							"host": [
+								"{{Node_URL}}checkSwitchStatus"
+							],
+							"query": [
+								{
+									"key": "deviceID",
+									"value": "44",
+									"description": "main device ID"
+								}
+							]
+						},
+						"description": "This API call to get Co2 value from multi sensor device."
+					},
+					"response": []
+				},
+				{
+					"name": "Check Light Switch Status From Fibaro in Meraki",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Node_URL}}checkSwitchStatus?deviceID=75",
+							"host": [
+								"{{Node_URL}}checkSwitchStatus"
+							],
+							"query": [
+								{
+									"key": "deviceID",
+									"value": "75",
+									"description": "main device ID"
+								}
+							]
+						},
+						"description": "This API call used to check light switch status."
+					},
+					"response": []
+				},
+				{
+					"name": "Switch Light Switch From Fibaro in Meraki",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Node_URL}}postPowerSwitch?deviceID=75&actionName=turnOn&userId=f35b3c8c-2dd1-401c-9dce-c192d398ae64&roomId=1&buildingId=1",
+							"host": [
+								"{{Node_URL}}postPowerSwitch"
+							],
+							"query": [
+								{
+									"key": "deviceID",
+									"value": "75",
+									"description": "main device ID"
+								},
+								{
+									"key": "actionName",
+									"value": "turnOn",
+									"description": "turnOn or turnOff"
+								},
+								{
+									"key": "userId",
+									"value": "f35b3c8c-2dd1-401c-9dce-c192d398ae64",
+									"description": "string"
+								},
+								{
+									"key": "roomId",
+									"value": "1",
+									"description": "venueID"
+								},
+								{
+									"key": "buildingId",
+									"value": "1",
+									"description": "campusID"
+								}
+							]
+						},
+						"description": "This API call used to switch the light \"on-off\" and save the action in the \"tblsensor_action_log\" & \"tblsec_sensors_history\" tables with the userId for who made this action."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Akuvox Sensor In Meraki",
+			"item": [
+				{
+					"name": "Open Door Switch Akuvox in Meraki",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Node_URL}}openDoorSwitch?doorID=1&actionName=OpenDoor&userId=f35b3c8c-2dd1-401c-9dce-c192d398ae64&roomId=1&buildingId=1",
+							"host": [
+								"{{Node_URL}}openDoorSwitch"
+							],
+							"query": [
+								{
+									"key": "doorID",
+									"value": "1",
+									"description": "main device ID"
+								},
+								{
+									"key": "actionName",
+									"value": "OpenDoor",
+									"description": "OpenDoor"
+								},
+								{
+									"key": "userId",
+									"value": "f35b3c8c-2dd1-401c-9dce-c192d398ae64",
+									"description": "string"
+								},
+								{
+									"key": "roomId",
+									"value": "1",
+									"description": "venueID"
+								},
+								{
+									"key": "buildingId",
+									"value": "1",
+									"description": "campusID"
+								}
+							]
+						},
+						"description": "This API call used to open the door switch and save the action in the \"tblsensor_action_log\" & \"tblsec_sensors_history\" tables with the userId for who made this action."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Meraki Sensors \"Meraki API\"",
+			"item": [
+				{
+					"name": "Get Temperature From Meraki",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Node_URL}}getTemperatureMeraki?deviceSerial=Q3CA-2DY2-LG4W&merakiNetworkID=L_676102894059002113&metric=temperature",
+							"host": [
+								"{{Node_URL}}getTemperatureMeraki"
+							],
+							"query": [
+								{
+									"key": "deviceSerial",
+									"value": "Q3CA-2DY2-LG4W",
+									"description": "Device Serial "
+								},
+								{
+									"key": "merakiNetworkID",
+									"value": "L_676102894059002113",
+									"description": "Meraki Network ID"
+								},
+								{
+									"key": "metric",
+									"value": "temperature",
+									"description": "temperature"
+								}
+							]
+						},
+						"description": "This API call will get the instantaneous value of temperature in celsius from meraki DB."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Historical Temperature From Meraki",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Node_URL}}getHistoricalTemperatureMeraki?deviceSerial=Q3CA-2DY2-LG4W&merakiNetworkID=L_676102894059002113&metric=temperature&t0=2021-08-24T13:22:26.419Z&t1=2021-08-25T13:22:26.419Z&resolution=120",
+							"host": [
+								"{{Node_URL}}getHistoricalTemperatureMeraki"
+							],
+							"query": [
+								{
+									"key": "deviceSerial",
+									"value": "Q3CA-2DY2-LG4W",
+									"description": "Device Serial "
+								},
+								{
+									"key": "merakiNetworkID",
+									"value": "L_676102894059002113",
+									"description": "Meraki Network ID"
+								},
+								{
+									"key": "metric",
+									"value": "temperature",
+									"description": "temperature"
+								},
+								{
+									"key": "t0",
+									"value": "2021-08-24T13:22:26.419Z",
+									"description": "From Date : \"ISO date string\""
+								},
+								{
+									"key": "t1",
+									"value": "2021-08-25T13:22:26.419Z",
+									"description": "To Date : \"ISO date string\""
+								},
+								{
+									"key": "resolution",
+									"value": "120",
+									"description": "Factor for number of returned values EX: 120, 3600 "
+								}
+							]
+						},
+						"description": "This API call will get the historical values for temperature in celsius from meraki DB."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Humidity From Meraki",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Node_URL}}getHumidityMeraki?deviceSerial=Q3CA-2DY2-LG4W&merakiNetworkID=L_676102894059002113&metric=humidity",
+							"host": [
+								"{{Node_URL}}getHumidityMeraki"
+							],
+							"query": [
+								{
+									"key": "deviceSerial",
+									"value": "Q3CA-2DY2-LG4W",
+									"description": "Device Serial "
+								},
+								{
+									"key": "merakiNetworkID",
+									"value": "L_676102894059002113",
+									"description": "Meraki Network ID"
+								},
+								{
+									"key": "metric",
+									"value": "humidity",
+									"description": "humidity"
+								}
+							]
+						},
+						"description": "This API call will get the instantaneous value of humidity \"%\" from meraki DB."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Historical Humidity From Meraki",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Node_URL}}getHistoricalHumidityMeraki?deviceSerial=Q3CA-2DY2-LG4W&merakiNetworkID=L_676102894059002113&metric=humidity&t0=2021-08-24T13:22:26.419Z&t1=2021-08-25T13:22:26.419Z&resolution=120",
+							"host": [
+								"{{Node_URL}}getHistoricalHumidityMeraki"
+							],
+							"query": [
+								{
+									"key": "deviceSerial",
+									"value": "Q3CA-2DY2-LG4W",
+									"description": "Device Serial "
+								},
+								{
+									"key": "merakiNetworkID",
+									"value": "L_676102894059002113",
+									"description": "Meraki Network ID"
+								},
+								{
+									"key": "metric",
+									"value": "humidity",
+									"description": "humidity"
+								},
+								{
+									"key": "t0",
+									"value": "2021-08-24T13:22:26.419Z",
+									"description": "From Date : \"ISO date string\""
+								},
+								{
+									"key": "t1",
+									"value": "2021-08-25T13:22:26.419Z",
+									"description": "To Date : \"ISO date string\""
+								},
+								{
+									"key": "resolution",
+									"value": "120",
+									"description": "Factor for number of returned values EX: 120, 3600 "
+								}
+							]
+						},
+						"description": "This API call will get the historical values for humidity \"%\" from meraki DB."
+					},
+					"response": []
+				},
+				{
+					"name": "Get WaterLeak Test From Meraki",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Node_URL}}getWaterLeakTest?deviceSerial=Q3CB-F4C4-L9SF&merakiNetworkID=L_676102894059002113&metric=water_detection",
+							"host": [
+								"{{Node_URL}}getWaterLeakTest"
+							],
+							"query": [
+								{
+									"key": "deviceSerial",
+									"value": "Q3CB-F4C4-L9SF",
+									"description": "Device Serial "
+								},
+								{
+									"key": "merakiNetworkID",
+									"value": "L_676102894059002113",
+									"description": "Meraki Network ID"
+								},
+								{
+									"key": "metric",
+									"value": "water_detection",
+									"description": "water_detection"
+								}
+							]
+						},
+						"description": "This API call will get the instantaneous status of the waterLeak sensor from meraki DB."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Historical WaterLeak From Meraki",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Node_URL}}getHistoricalWaterLeakMeraki?deviceSerial=Q3CA-2DY2-LG4W&merakiNetworkID=L_676102894059002113&metric=water_detection&t0=2021-08-24T13:22:26.419Z&t1=2021-08-25T13:22:26.419Z&resolution=120",
+							"host": [
+								"{{Node_URL}}getHistoricalWaterLeakMeraki"
+							],
+							"query": [
+								{
+									"key": "deviceSerial",
+									"value": "Q3CA-2DY2-LG4W",
+									"description": "Device Serial "
+								},
+								{
+									"key": "merakiNetworkID",
+									"value": "L_676102894059002113",
+									"description": "Meraki Network ID"
+								},
+								{
+									"key": "metric",
+									"value": "water_detection",
+									"description": "water_detection"
+								},
+								{
+									"key": "t0",
+									"value": "2021-08-24T13:22:26.419Z",
+									"description": "From Date : \"ISO date string\""
+								},
+								{
+									"key": "t1",
+									"value": "2021-08-25T13:22:26.419Z",
+									"description": "To Date : \"ISO date string\""
+								},
+								{
+									"key": "resolution",
+									"value": "120",
+									"description": "Factor for number of returned values EX: 120, 3600 "
+								}
+							]
+						},
+						"description": "This API call will get the historical status for waterLeak sensor from meraki DB."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Historical Door Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Node_URL}}getDoorStatus?deviceSerial=Q3CC-WBJK-UAU7&merakiNetworkID=L_676102894059002113&eventName=mt_door",
+							"host": [
+								"{{Node_URL}}getDoorStatus"
+							],
+							"query": [
+								{
+									"key": "deviceSerial",
+									"value": "Q3CC-WBJK-UAU7",
+									"description": "Device Serial "
+								},
+								{
+									"key": "merakiNetworkID",
+									"value": "L_676102894059002113",
+									"description": "Meraki Network ID"
+								},
+								{
+									"key": "eventName",
+									"value": "mt_door",
+									"description": "mt_door"
+								}
+							]
+						},
+						"description": "This API call will get the historical door status from meraki DB."
+					},
+					"response": []
+				},
+				{
+					"name": "Mqtt Fire Alarm From Meraki",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Node_URL}}getSoundAlarm",
+							"host": [
+								"{{Node_URL}}getSoundAlarm"
+							]
+						},
+						"description": "This API call will check the sound alarm for fire detection using meraki mqtt service."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Fibaro Sensors \"Devices Off\"",
+			"item": [
+				{
+					"name": "Get Temperature From Fibaro Sensor",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Node_URL}}getTemperatureFibaro?deviceID=46",
+							"host": [
+								"{{Node_URL}}getTemperatureFibaro"
+							],
+							"query": [
+								{
+									"key": "deviceID",
+									"value": "46",
+									"description": "Device ID"
+								}
+							]
+						},
+						"description": "This API call will get the instantaneous value of temperature in celsius from fibaro device DB."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Historical Temperature From Fibaro Sensor",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Node_URL}}getHistoricalTemperatureFibaro?deviceID=45&dateDiff=10000",
+							"host": [
+								"{{Node_URL}}getHistoricalTemperatureFibaro"
+							],
+							"query": [
+								{
+									"key": "deviceID",
+									"value": "45",
+									"description": "Device ID"
+								},
+								{
+									"key": "dateDiff",
+									"value": "10000",
+									"description": "Number in milliseconds"
+								}
+							]
+						},
+						"description": "This API call will get the historical values for temperature in celsius from fibaro device DB."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Humidity From Fibaro sensor",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Node_URL}}getHumidityFibaro?deviceID=46",
+							"host": [
+								"{{Node_URL}}getHumidityFibaro"
+							],
+							"query": [
+								{
+									"key": "deviceID",
+									"value": "46",
+									"description": "Device ID"
+								}
+							]
+						},
+						"description": "This API call will get the instantaneous value of humidity \"%\" from fibaro device DB."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Historical Power Consumption Fibaro Sensor",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Node_URL}}getHistoricalPowerConsumption?deviceID=58&dateDiff=10000",
+							"host": [
+								"{{Node_URL}}getHistoricalPowerConsumption"
+							],
+							"query": [
+								{
+									"key": "deviceID",
+									"value": "58",
+									"description": "Device ID"
+								},
+								{
+									"key": "dateDiff",
+									"value": "10000",
+									"description": "Number in milliseconds"
+								}
+							]
+						},
+						"description": "This API call will get the historical values for humidity \"%\" from fibaro device DB."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "SonOff Sensor",
+			"item": [
+				{
+					"name": "Check Ac Switch Status From SonOff Sensor",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Node_URL}}checkAcSwitchStatus?deviceID=1000c7f40d",
+							"host": [
+								"{{Node_URL}}checkAcSwitchStatus"
+							],
+							"query": [
+								{
+									"key": "deviceID",
+									"value": "1000c7f40d",
+									"description": "main device ID"
+								}
+							]
+						},
+						"description": "This API call used to check AC switch status using ewelink API."
+					},
+					"response": []
+				},
+				{
+					"name": "Switch Ac Switch Status From SonOff Sensor",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Node_URL}}SwitchAcSwitchSonOff?deviceID=1000c7f40d&userId=f35b3c8c-2dd1-401c-9dce-c192d398ae64&roomId=1&buildingId=1",
+							"host": [
+								"{{Node_URL}}SwitchAcSwitchSonOff"
+							],
+							"query": [
+								{
+									"key": "deviceID",
+									"value": "1000c7f40d",
+									"description": "main device ID"
+								},
+								{
+									"key": "userId",
+									"value": "f35b3c8c-2dd1-401c-9dce-c192d398ae64",
+									"description": "string"
+								},
+								{
+									"key": "roomId",
+									"value": "1",
+									"description": "venueID"
+								},
+								{
+									"key": "buildingId",
+									"value": "1",
+									"description": "campusID"
+								}
+							]
+						},
+						"description": "This API call used to toggle AC switch \"on-off\" and save the action in the \"tblsensor_action_log\" & \"tblsec_sensors_history\" tables with the userId for who made this action."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Services Loaders",
+			"item": [
+				{
+					"name": "Load Rtsp Stream",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Node_URL}}loadRtspStream",
+							"host": [
+								"{{Node_URL}}loadRtspStream"
+							]
+						},
+						"description": "This API call will start RTSP stream service and start video record."
+					},
+					"response": []
+				},
+				{
+					"name": "Load Mqtt",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Node_URL}}runMqtt",
+							"host": [
+								"{{Node_URL}}runMqtt"
+							]
+						},
+						"description": "This API call will start Mqtt service."
+					},
+					"response": []
+				},
+				{
+					"name": "Load Alert Service",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Node_URL}}loadAlertService",
+							"host": [
+								"{{Node_URL}}loadAlertService"
+							]
+						},
+						"description": "This API call will start alert service."
+					},
+					"response": []
+				},
+				{
+					"name": "Load Historical Data Service",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Node_URL}}loadHistoricalDataService",
+							"host": [
+								"{{Node_URL}}loadHistoricalDataService"
+							]
+						},
+						"description": "This API call will start historical data saving to CMS DB service."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Services Turn Off",
+			"item": [
+				{
+					"name": "Turn Off Mqtt",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Node_URL}}stopMqttService",
+							"host": [
+								"{{Node_URL}}stopMqttService"
+							]
+						},
+						"description": "This API will stop Mqtt service."
+					},
+					"response": []
+				},
+				{
+					"name": "Turn Off Video Stream",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Node_URL}}stopStreamService",
+							"host": [
+								"{{Node_URL}}stopStreamService"
+							]
+						},
+						"description": "This API will stop video stream service."
+					},
+					"response": []
+				},
+				{
+					"name": "Turn Off Alert Service",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Node_URL}}stopAlertService",
+							"host": [
+								"{{Node_URL}}stopAlertService"
+							]
+						},
+						"description": "This API will stop alert service."
+					},
+					"response": []
+				},
+				{
+					"name": "Turn Off Historical Data Service Copy",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Node_URL}}stopHistoricalDataService",
+							"host": [
+								"{{Node_URL}}stopHistoricalDataService"
+							]
+						},
+						"description": "This API will stop historical data saving to CMS DB service."
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

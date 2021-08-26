@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: routerFunctionality/fibaroMerakiSensorsFunctionality.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: routerFunctionality/fibaroMerakiSensorsFunctionality.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>
+'use strict';
+
+const superagent = require('superagent');
+var helpers  = require('../helpers/helpers.js');
+const ThresholdsEnum = require('../enum/thresholdsEnum.js');
+const SensorTypeEnum = require('../enum/sensorTypeEnum');
+const SensorActionEnum = require('../enum/sensorActionEnum');
+
+// Application setup
+const IP_ADDRESS_FOR_FIBARO_SENSORS_MERAKI =  process.env.IP_ADDRESS_FOR_FIBARO_SENSORS_MERAKI;
+const FIBARO_USER_NAME_MERAKI = process.env.FIBARO_USER_NAME_MERAKI;
+const FIBARO_PASSWORD_MERAKI = process.env.FIBARO_PASSWORD_MERAKI;
+
+// Global Vars
+
+// Functions definitions
+/** 
+ * This function will get the smoke test from Fibaro sensor
+ * @param {obj} req 
+ * @param {obj} res 
+ * @param {function} next 
+ */
+var getSmoke = async function (req, res, next) {
+  var smokeDeviceID = req.query.deviceID;
+  superagent.get(`http://${IP_ADDRESS_FOR_FIBARO_SENSORS_MERAKI}/api/devices/${smokeDeviceID}`)
+    .set('Content-Type', 'application/x-www-form-urlencoded')
+    .auth(FIBARO_USER_NAME_MERAKI, FIBARO_PASSWORD_MERAKI)
+    .then(smokeData => {
+      var smokeObject = {};
+      var smokeDatavalue = smokeData.body.properties.value;
+      if (smokeDatavalue) {
+        if (smokeDatavalue == 'true') {
+          smokeObject.status=ThresholdsEnum.smokeAlarm.fire;
+        }else{
+          smokeObject.status=ThresholdsEnum.smokeAlarm.normal;
+        }
+        smokeObject.value=smokeDatavalue;
+        // console.log('smokeData', smokeData.body.properties.value);
+        res.status(200).send(smokeObject); } else { res.status(200).send([]); }
+    })
+    .catch(err => {
+      console.log('Smoke sensor error: ', err);
+      res.status(403).send('Smoke sensor error');
+    });
+};
+
+/** 
+ * This function will get the dust from Fibaro sensor
+ * @param {obj} req 
+ * @param {obj} res 
+ * @param {function} next 
+ */
+var getDust = async function (req, res, next) {
+  var dustDeviceID = req.query.deviceID;
+  superagent.get(`http://${IP_ADDRESS_FOR_FIBARO_SENSORS_MERAKI}/api/devices/${dustDeviceID}`)
+    .set('Content-Type', 'application/x-www-form-urlencoded')
+    .auth(FIBARO_USER_NAME_MERAKI, FIBARO_PASSWORD_MERAKI)
+    .then(async dustData => {
+      var dustObject = {};
+      var dustDatavalue = dustData.body.properties.value;
+      if (dustDatavalue || dustDatavalue == 0) {
+        var thresholds =await helpers.getThresholds();
+        if (thresholds.dust.high >= Number(dustDatavalue) &amp;&amp; Number(dustDatavalue) >= thresholds.dust.low) {
+          dustObject.status=ThresholdsEnum.dust.normal;
+        }
+        if (thresholds.dust.high &lt; Number(dustDatavalue)) {
+          dustObject.status=ThresholdsEnum.dust.high;
+        }
+        if (Number(dustDatavalue) &lt; thresholds.dust.low) {
+          dustObject.status=ThresholdsEnum.dust.low;
+        }
+        dustObject.value=dustDatavalue;
+        // console.log('dustData', dustData.body.properties.value);
+        res.status(200).send(dustObject); } else { res.status(200).send([]); }
+
+    })
+    .catch(err => {
+      console.log('Dust sensor error: ', err);
+      res.status(403).send('Dust sensor error');
+    });
+};
+
+/** 
+ * This function will get the Co2 from Fibaro sensor
+ * @param {obj} req 
+ * @param {obj} res 
+ * @param {function} next 
+ */
+var getCo2 = async function (req, res, next) {
+  var co2DeviceID = req.query.deviceID;
+  superagent.get(`http://${IP_ADDRESS_FOR_FIBARO_SENSORS_MERAKI}/api/devices/${co2DeviceID}`)
+    .set('Content-Type', 'application/x-www-form-urlencoded')
+    .auth(FIBARO_USER_NAME_MERAKI, FIBARO_PASSWORD_MERAKI)
+    .then(async co2Data => {
+      var co2Object = {};
+      var co2Datavalue = co2Data.body.properties.value;
+      if (co2Datavalue || co2Datavalue == 0) {
+        var thresholds =await helpers.getThresholds();
+        if (thresholds.co2.high >= Number(co2Datavalue) &amp;&amp; Number(co2Datavalue) >= thresholds.co2.low) {
+          co2Object.status=ThresholdsEnum.co2.normal;
+        }
+        if (thresholds.co2.high &lt; Number(co2Datavalue)) {
+          co2Object.status=ThresholdsEnum.co2.high;
+        }
+        if (Number(co2Datavalue) &lt; thresholds.co2.low) {
+          co2Object.status=ThresholdsEnum.co2.low;
+        }
+        co2Object.value=co2Datavalue;
+        // console.log('co2Data', co2Data.body.properties.value);
+        res.status(200).send(co2Object); } else { res.status(200).send([]); }
+
+    })
+    .catch(err => {
+      console.log('Co2 sensor error: ', err);
+      res.status(403).send('Co2 sensor error');
+    });
+};
+
+/** 
+ * This function will get the power consumption from Fibaro Meraki sensor
+ * @param {obj} req 
+ * @param {obj} res 
+ * @param {function} next 
+ */
+var getPowerConsumption =async function (req, res, next) {
+  var powerDeviceID = req.query.deviceID;
+  var powerDeviceIDAmpere = req.query.deviceIDAmpere;
+  var powerDeviceIDVolt = req.query.deviceIDVolt;
+  var powerObject = {};
+  powerObject.value={};
+
+  superagent.get(`http://${IP_ADDRESS_FOR_FIBARO_SENSORS_MERAKI}/api/devices?parentId=${powerDeviceID}`)
+    .set('Content-Type', 'application/x-www-form-urlencoded')
+    .auth(FIBARO_USER_NAME_MERAKI, FIBARO_PASSWORD_MERAKI)
+    .then(powerData => {
+      const filterPowerData = powerData.body.filter((itemInArray) => {return (itemInArray.id == powerDeviceIDAmpere ||itemInArray.id == powerDeviceIDVolt)  ;});
+      powerObject.value.ampere = Number(filterPowerData[1].properties.value);
+      powerObject.value.volt = Math.abs(filterPowerData[0].properties.value);
+      powerObject.value.watt = Math.abs(filterPowerData[0].properties.value * filterPowerData[1].properties.value);
+      if (powerObject) { res.status(200).send(powerObject); } else { res.status(200).send([]); }
+    })
+    .catch(err => {
+      console.log('Power sensor error: ', err);
+      res.status(403).send('Power sensor error');
+    });
+};
+
+
+/** 
+ * This function will check switch status from Fibaro Meraki sensor
+ * @param {obj} req 
+ * @param {obj} res 
+ * @param {function} next 
+ */
+var checkSwitchStatus = async function (req, res, next) {
+  var CheckSwitchStatusID = req.query.deviceID;
+  superagent.get(`http://${IP_ADDRESS_FOR_FIBARO_SENSORS_MERAKI}/api/devices/${CheckSwitchStatusID}`)
+    .set('Content-Type', 'application/x-www-form-urlencoded')
+    .auth(FIBARO_USER_NAME_MERAKI, FIBARO_PASSWORD_MERAKI)
+    .then(checkSwitchStatus => {
+
+      // console.log('checkSwitchStatus', checkSwitchStatus.body.properties.value);
+      if (checkSwitchStatus.body.properties.value) { res.status(200).send(checkSwitchStatus.body.properties.value); } else { res.status(200).send([]); }
+
+    })
+    .catch(err => {
+      console.log('Check switch status error: ', err);
+      res.status(403).send('Check switch status error');
+    });
+};
+
+/** 
+ * This function will change switch status from Fibaro Meraki sensor
+ * @param {obj} req 
+ * @param {obj} res 
+ * @param {function} next 
+ */
+var postPowerSwitch = async function (req, res, next) {
+  var PostPowerSwitchID = req.query.deviceID;
+  var actionName = req.query.actionName;
+  var userId = req.query.userId;
+  var roomId = req.query.roomId;
+  var buildingId = req.query.buildingId;
+  superagent.post(`http://${IP_ADDRESS_FOR_FIBARO_SENSORS_MERAKI}/api/devices/${PostPowerSwitchID}/action/${actionName}`)
+    .set('Content-Type', 'application/x-www-form-urlencoded')
+    .auth(FIBARO_USER_NAME_MERAKI, FIBARO_PASSWORD_MERAKI)
+    .then(PostPowerSwitch => {
+
+      console.log('PostPowerSwitch', PostPowerSwitch.body.result);
+      if (PostPowerSwitch.body.result) {
+        if(actionName=='turnOn') {
+          helpers.switchLogGenerator(SensorTypeEnum.sensorType.lightSwitch,SensorActionEnum.actionID.on,userId,roomId,buildingId);
+          helpers.historicalDataGenerator(SensorTypeEnum.sensorType.lightSwitch,Number(SensorActionEnum.actionID.on),SensorActionEnum.actionID.on,new Date().toUTCString());
+
+        }
+        if(actionName=='turnOff'){
+          helpers.switchLogGenerator(SensorTypeEnum.sensorType.lightSwitch,SensorActionEnum.actionID.off,userId,roomId,buildingId);
+          helpers.historicalDataGenerator(SensorTypeEnum.sensorType.lightSwitch,Number(SensorActionEnum.actionID.off),SensorActionEnum.actionID.off,new Date().toUTCString());
+        }
+        // console.log(PostPowerSwitch.body);
+        res.status(200).send(actionName); 
+      } else { res.status(200).send([]); }
+
+    })
+    .catch(err => {
+      console.log('Power switch sensor error: ', err);
+      res.status(403).send('Power switch sensor error');
+    });
+};
+
+var fibaroMerakiSensorsFunctionality = {};
+fibaroMerakiSensorsFunctionality.getPowerConsumption=getPowerConsumption;
+fibaroMerakiSensorsFunctionality.getSmoke=getSmoke;
+fibaroMerakiSensorsFunctionality.getDust=getDust;
+fibaroMerakiSensorsFunctionality.getCo2=getCo2;
+fibaroMerakiSensorsFunctionality.checkSwitchStatus=checkSwitchStatus;
+fibaroMerakiSensorsFunctionality.postPowerSwitch=postPowerSwitch;
+module.exports = fibaroMerakiSensorsFunctionality;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#checkAcSwitchStatus">checkAcSwitchStatus</a></li><li><a href="global.html#checkSwitchStatus">checkSwitchStatus</a></li><li><a href="global.html#getCo2">getCo2</a></li><li><a href="global.html#getDoorStatus">getDoorStatus</a></li><li><a href="global.html#getDust">getDust</a></li><li><a href="global.html#getHistoricalHumidityMeraki">getHistoricalHumidityMeraki</a></li><li><a href="global.html#getHistoricalPowerConsumption">getHistoricalPowerConsumption</a></li><li><a href="global.html#getHistoricalTemperatureFibaro">getHistoricalTemperatureFibaro</a></li><li><a href="global.html#getHistoricalTemperatureMeraki">getHistoricalTemperatureMeraki</a></li><li><a href="global.html#getHistoricalWaterLeakMeraki">getHistoricalWaterLeakMeraki</a></li><li><a href="global.html#getHumidity">getHumidity</a></li><li><a href="global.html#getHumidityFibaro">getHumidityFibaro</a></li><li><a href="global.html#getHumidityMeraki">getHumidityMeraki</a></li><li><a href="global.html#getPower">getPower</a></li><li><a href="global.html#getPowerConsumption">getPowerConsumption</a></li><li><a href="global.html#getSmoke">getSmoke</a></li><li><a href="global.html#getSoundAlarm">getSoundAlarm</a></li><li><a href="global.html#getTemp">getTemp</a></li><li><a href="global.html#getTemperatureFibaro">getTemperatureFibaro</a></li><li><a href="global.html#getTemperatureMeraki">getTemperatureMeraki</a></li><li><a href="global.html#getWaterLeakTest">getWaterLeakTest</a></li><li><a href="global.html#loadAlertService">loadAlertService</a></li><li><a href="global.html#loadHistoricalDataService">loadHistoricalDataService</a></li><li><a href="global.html#loadRtspStream">loadRtspStream</a></li><li><a href="global.html#loadVideo">loadVideo</a></li><li><a href="global.html#mqttFunc">mqttFunc</a></li><li><a href="global.html#openDoorSwitch">openDoorSwitch</a></li><li><a href="global.html#postPowerSwitch">postPowerSwitch</a></li><li><a href="global.html#recordList">recordList</a></li><li><a href="global.html#restartStream">restartStream</a></li><li><a href="global.html#rtspStreamRestartingInterval">rtspStreamRestartingInterval</a></li><li><a href="global.html#runMqtt">runMqtt</a></li><li><a href="global.html#saveAcSwitchStatusHistorical">saveAcSwitchStatusHistorical</a></li><li><a href="global.html#saveFireAlarm">saveFireAlarm</a></li><li><a href="global.html#saveSwitchStatusHistorical">saveSwitchStatusHistorical</a></li><li><a href="global.html#sensorsNumber">sensorsNumber</a></li><li><a href="global.html#stopAlertService">stopAlertService</a></li><li><a href="global.html#stopHistoricalDataService">stopHistoricalDataService</a></li><li><a href="global.html#stopMqtt">stopMqtt</a></li><li><a href="global.html#stopMqttService">stopMqttService</a></li><li><a href="global.html#stopStreamService">stopStreamService</a></li><li><a href="global.html#SwitchAcSwitchSonOff">SwitchAcSwitchSonOff</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Thu Aug 26 2021 16:44:36 GMT+0300 (Eastern European Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

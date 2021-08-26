@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: routerFunctionality/merakiSensorsFunctionality.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: routerFunctionality/merakiSensorsFunctionality.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>
+'use strict';
+
+const superagent = require('superagent');
+var helpers  = require('../helpers/helpers.js');
+const ThresholdsEnum = require('../enum/thresholdsEnum.js');
+
+
+// Application setup
+const MERAKI_API_KEY = process.env.MERAKI_API_KEY;
+
+// Global Vars
+
+// Functions definitions
+/** 
+ * This function will return Temperature from Meraki sensor
+ * @param {obj} req 
+ * @param {obj} res 
+ * @param {function} next 
+ */
+var getTemperatureMeraki = async function (req, res, next) {
+  var deviceSerial = req.query.deviceSerial;
+  var merakiNetworkID = req.query.merakiNetworkID;
+  var metric = req.query.metric;
+  superagent.get(`https://api.meraki.com/api/v1/networks/${merakiNetworkID}/sensors/stats/latestBySensor?metric=${metric}&amp;serial=${deviceSerial}`)
+    .set('Content-Type', 'application/x-www-form-urlencoded')
+    .set('X-Cisco-Meraki-API-Key', MERAKI_API_KEY)
+    .then(async temperatureData => {
+      var temperatureObject = {};
+      var temperatureDatavalue = temperatureData.body[0].value;
+      if (temperatureDatavalue || temperatureDatavalue == 0) {
+        var thresholds =await helpers.getThresholds();
+        if (thresholds.temperature.high >= Number(temperatureDatavalue) &amp;&amp; Number(temperatureDatavalue) >= thresholds.temperature.low) {
+          temperatureObject.status=ThresholdsEnum.temperature.normal;
+        }
+        if (thresholds.temperature.high &lt; Number(temperatureDatavalue)) {
+          temperatureObject.status=ThresholdsEnum.temperature.high;
+        }
+        if (Number(temperatureDatavalue) &lt; thresholds.temperature.low) {
+          temperatureObject.status=ThresholdsEnum.temperature.low;
+        }
+        temperatureObject.value=temperatureDatavalue;
+        // console.log('temperatureData', temperatureData.body.properties.value);
+        res.status(200).send(temperatureObject); } else { res.status(200).send([]); }
+    })
+    .catch(err => {
+      console.log('Temperature sensor error: ', err);
+      res.status(403).send('Temperature sensor error');
+    });
+};
+
+/** 
+ * This function will get the historical temperature from Meraki sensor
+ * @param {obj} req 
+ * @param {obj} res 
+ * @param {function} next 
+ */
+var getHistoricalTemperatureMeraki = async function (req, res, next) {
+  var deviceSerial = req.query.deviceSerial;
+  var merakiNetworkID = req.query.merakiNetworkID;
+  var metric = req.query.metric;
+  var t0 = req.query.t0;
+  var t1 = req.query.t1;
+  var resolution  = req.query.resolution;
+  superagent.get(`https://api.meraki.com/api/v1/networks/${merakiNetworkID}/sensors/stats/historicalBySensor?metric=${metric}&amp;serial=${deviceSerial}&amp;t0=${t0}&amp;t1=${t1}&amp;resolution=${resolution}`)
+    .set('Content-Type', 'application/x-www-form-urlencoded')
+    .set('X-Cisco-Meraki-API-Key', MERAKI_API_KEY)
+    .then(historicalTempData => {
+
+      // console.log('TempData', TempData.body.properties.value);
+      if (historicalTempData.body) { res.status(200).send(historicalTempData.body); } else { res.status(200).send([]); }
+
+    })
+    .catch(err => {
+      console.log('Historical temp sensor error: ', err);
+      res.status(403).send('Historical temp sensor error');
+    });
+};
+
+
+/** 
+ * This function will return humidity from Meraki sensor
+ * @param {obj} req 
+ * @param {obj} res 
+ * @param {function} next 
+ */
+var getHumidityMeraki = async function (req, res, next) {
+  var deviceSerial = req.query.deviceSerial;
+  var merakiNetworkID = req.query.merakiNetworkID;
+  var metric = req.query.metric;
+  superagent.get(`https://api.meraki.com/api/v1/networks/${merakiNetworkID}/sensors/stats/latestBySensor?metric=${metric}&amp;serial=${deviceSerial}`)
+    .set('Content-Type', 'application/x-www-form-urlencoded')
+    .set('X-Cisco-Meraki-API-Key', MERAKI_API_KEY)
+    .then(async humidityData => {
+      var humidityObject = {};
+      var humidityDatavalue = humidityData.body[0].value;
+      if (humidityDatavalue || humidityDatavalue == 0) {
+        var thresholds =await helpers.getThresholds();
+        if (thresholds.humidity.high >= Number(humidityDatavalue) &amp;&amp; Number(humidityDatavalue) >= thresholds.humidity.low) {
+          humidityObject.status=ThresholdsEnum.humidity.normal;
+        }
+        if (thresholds.humidity.high &lt; Number(humidityDatavalue)) {
+          humidityObject.status=ThresholdsEnum.humidity.high;
+        }
+        if (Number(humidityDatavalue) &lt; thresholds.humidity.low) {
+          humidityObject.status=ThresholdsEnum.humidity.low;
+        }
+        humidityObject.value=humidityDatavalue;
+        console.log('humidityObjecthumidityObjecthumidityObjecthumidityObjecthumidityObject', humidityObject);
+        res.status(200).send(humidityObject); } else { res.status(200).send([]); }
+    })
+    .catch(err => {
+      console.log('Humidity sensor error: ', err);
+      res.status(403).send('Humidity sensor error');
+    });
+};
+
+/** 
+ * This function will get the historical Humidity from Meraki sensor
+ * @param {obj} req 
+ * @param {obj} res 
+ * @param {function} next 
+ */
+var getHistoricalHumidityMeraki =async function (req, res, next) {
+  var deviceSerial = req.query.deviceSerial;
+  var merakiNetworkID = req.query.merakiNetworkID;
+  var metric = req.query.metric;
+  var t0 = req.query.t0;
+  var t1 = req.query.t1;
+  var resolution  = req.query.resolution;
+  superagent.get(`https://api.meraki.com/api/v1/networks/${merakiNetworkID}/sensors/stats/historicalBySensor?metric=${metric}&amp;serial=${deviceSerial}&amp;t0=${t0}&amp;t1=${t1}&amp;resolution=${resolution}`)
+    .set('Content-Type', 'application/x-www-form-urlencoded')
+    .set('X-Cisco-Meraki-API-Key', MERAKI_API_KEY)
+    .then(historicalHumidityData => {
+      if (historicalHumidityData.body) { res.status(200).send(historicalHumidityData.body); } else { res.status(200).send([]); }
+    })
+    .catch(err => {
+      console.log('Historical humidity sensor error: ', err);
+      res.status(403).send('Historical humidity sensor error');
+    });
+};
+
+/** 
+ * This function will return water leak test result from Meraki sensor
+ * @param {obj} req 
+ * @param {obj} res 
+ * @param {function} next 
+ */
+var getWaterLeakTest = async function (req, res, next) {
+  var deviceSerial = req.query.deviceSerial;
+  var merakiNetworkID = req.query.merakiNetworkID;
+  var metric = req.query.metric;
+  superagent.get(`https://api.meraki.com/api/v1/networks/${merakiNetworkID}/sensors/stats/latestBySensor?metric=${metric}&amp;serial=${deviceSerial}`)
+    .set('Content-Type', 'application/x-www-form-urlencoded')
+    .set('X-Cisco-Meraki-API-Key', MERAKI_API_KEY)
+    .then(waterLeakData => {
+
+      var waterLeakObject = {};
+      var waterLeakDatavalue = waterLeakData.body[0].value;
+      if (waterLeakDatavalue || waterLeakDatavalue == 0 ) {
+        // console.log("waterLeakDatavalue",waterLeakDatavalue)
+        if (Number(waterLeakDatavalue) == 0) {
+          waterLeakObject.status=ThresholdsEnum.waterLeak.normal;
+        }else{
+          waterLeakObject.status=ThresholdsEnum.waterLeak.veryHigh;
+        }
+        waterLeakObject.value=waterLeakDatavalue;
+        // console.log('waterLeakData', waterLeakData.body.properties.value);
+        res.status(200).send(waterLeakObject); } else { res.status(200).send([]); }
+    })
+    .catch(err => {
+      console.log('WaterLeak sensor error: ', err);
+      res.status(403).send('WaterLeak sensor error');
+    });
+};
+
+/** 
+ * This function will get the historical waterLeak from Meraki sensor
+ * @param {obj} req 
+ * @param {obj} res 
+ * @param {function} next 
+ */
+var getHistoricalWaterLeakMeraki =async function (req, res, next) {
+  var deviceSerial = req.query.deviceSerial;
+  var merakiNetworkID = req.query.merakiNetworkID;
+  var metric = req.query.metric;
+  var t0 = req.query.t0;
+  var t1 = req.query.t1;
+  var resolution  = req.query.resolution;
+  superagent.get(`https://api.meraki.com/api/v1/networks/${merakiNetworkID}/sensors/stats/historicalBySensor?metric=${metric}&amp;serial=${deviceSerial}&amp;t0=${t0}&amp;t1=${t1}&amp;resolution=${resolution}`)
+    .set('Content-Type', 'application/x-www-form-urlencoded')
+    .set('X-Cisco-Meraki-API-Key', MERAKI_API_KEY)
+    .then(historicalWaterLeakData => {
+      // console.log('TempData', TempData.body.properties.value);
+      if (historicalWaterLeakData.body) { res.status(200).send(historicalWaterLeakData.body); } else { res.status(200).send([]); }
+
+    })
+    .catch(err => {
+      console.log('Historical waterLeak sensor error: ', err);
+      res.status(403).send('Historical waterLeak sensor error');
+    });
+};
+
+
+/** 
+ * This function will return the historical door status from Meraki sensor
+ * @param {obj} req 
+ * @param {obj} res 
+ * @param {function} next 
+ */
+var getDoorStatus =async function (req, res, next) {
+  var deviceSerial = req.query.deviceSerial;
+  var eventName = req.query.eventName;
+  var merakiNetworkID = req.query.merakiNetworkID;
+  superagent.get(`https://api.meraki.com/api/v1/networks/${merakiNetworkID}/environmental/events?includedEventTypes[]=${eventName}&amp;sensorSerial=${deviceSerial}`)
+    .set('Content-Type', 'application/x-www-form-urlencoded')
+    .set('X-Cisco-Meraki-API-Key', MERAKI_API_KEY)
+    .then(doorStatusData => {
+      var doorStatusObject = {};
+      var doorStatusDatavalue = doorStatusData.body[0].eventData.value;
+      // console.log('############',doorStatusData.body)
+      if (doorStatusDatavalue || doorStatusDatavalue == 0) {
+        if (Number(doorStatusDatavalue) == 0) {
+          doorStatusObject.status=ThresholdsEnum.doorStatus.open;
+        }else{
+          doorStatusObject.status=ThresholdsEnum.doorStatus.locked;
+        }
+        doorStatusObject.value=doorStatusData.body;
+        // console.log('doorStatusData', doorStatusData.body.properties.value);
+        res.status(200).send(doorStatusObject); } else { res.status(200).send([]); }
+    })
+    .catch(err => {
+      console.log('Door Status sensor error: ', err);
+      res.status(403).send('Door Status sensor error');
+    });
+};
+
+var merakiSensorsFunctionality = {};
+merakiSensorsFunctionality.getTemperatureMeraki=getTemperatureMeraki;
+merakiSensorsFunctionality.getHistoricalTemperatureMeraki=getHistoricalTemperatureMeraki;
+merakiSensorsFunctionality.getHistoricalHumidityMeraki=getHistoricalHumidityMeraki;
+merakiSensorsFunctionality.getHistoricalWaterLeakMeraki=getHistoricalWaterLeakMeraki;
+merakiSensorsFunctionality.getHumidityMeraki=getHumidityMeraki;
+merakiSensorsFunctionality.getWaterLeakTest=getWaterLeakTest;
+merakiSensorsFunctionality.getDoorStatus=getDoorStatus;
+
+module.exports = merakiSensorsFunctionality;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#checkAcSwitchStatus">checkAcSwitchStatus</a></li><li><a href="global.html#checkSwitchStatus">checkSwitchStatus</a></li><li><a href="global.html#getCo2">getCo2</a></li><li><a href="global.html#getDoorStatus">getDoorStatus</a></li><li><a href="global.html#getDust">getDust</a></li><li><a href="global.html#getHistoricalHumidityMeraki">getHistoricalHumidityMeraki</a></li><li><a href="global.html#getHistoricalPowerConsumption">getHistoricalPowerConsumption</a></li><li><a href="global.html#getHistoricalTemperatureFibaro">getHistoricalTemperatureFibaro</a></li><li><a href="global.html#getHistoricalTemperatureMeraki">getHistoricalTemperatureMeraki</a></li><li><a href="global.html#getHistoricalWaterLeakMeraki">getHistoricalWaterLeakMeraki</a></li><li><a href="global.html#getHumidity">getHumidity</a></li><li><a href="global.html#getHumidityFibaro">getHumidityFibaro</a></li><li><a href="global.html#getHumidityMeraki">getHumidityMeraki</a></li><li><a href="global.html#getPower">getPower</a></li><li><a href="global.html#getPowerConsumption">getPowerConsumption</a></li><li><a href="global.html#getSmoke">getSmoke</a></li><li><a href="global.html#getSoundAlarm">getSoundAlarm</a></li><li><a href="global.html#getTemp">getTemp</a></li><li><a href="global.html#getTemperatureFibaro">getTemperatureFibaro</a></li><li><a href="global.html#getTemperatureMeraki">getTemperatureMeraki</a></li><li><a href="global.html#getWaterLeakTest">getWaterLeakTest</a></li><li><a href="global.html#loadAlertService">loadAlertService</a></li><li><a href="global.html#loadHistoricalDataService">loadHistoricalDataService</a></li><li><a href="global.html#loadRtspStream">loadRtspStream</a></li><li><a href="global.html#loadVideo">loadVideo</a></li><li><a href="global.html#mqttFunc">mqttFunc</a></li><li><a href="global.html#openDoorSwitch">openDoorSwitch</a></li><li><a href="global.html#postPowerSwitch">postPowerSwitch</a></li><li><a href="global.html#recordList">recordList</a></li><li><a href="global.html#restartStream">restartStream</a></li><li><a href="global.html#rtspStreamRestartingInterval">rtspStreamRestartingInterval</a></li><li><a href="global.html#runMqtt">runMqtt</a></li><li><a href="global.html#saveAcSwitchStatusHistorical">saveAcSwitchStatusHistorical</a></li><li><a href="global.html#saveFireAlarm">saveFireAlarm</a></li><li><a href="global.html#saveSwitchStatusHistorical">saveSwitchStatusHistorical</a></li><li><a href="global.html#sensorsNumber">sensorsNumber</a></li><li><a href="global.html#stopAlertService">stopAlertService</a></li><li><a href="global.html#stopHistoricalDataService">stopHistoricalDataService</a></li><li><a href="global.html#stopMqtt">stopMqtt</a></li><li><a href="global.html#stopMqttService">stopMqttService</a></li><li><a href="global.html#stopStreamService">stopStreamService</a></li><li><a href="global.html#SwitchAcSwitchSonOff">SwitchAcSwitchSonOff</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Thu Aug 26 2021 16:44:36 GMT+0300 (Eastern European Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

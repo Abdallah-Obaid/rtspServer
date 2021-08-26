@@ -10,15 +10,18 @@
     "child_process": "^1.0.2",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
+    "ewelink-api": "^3.1.1",
     "express": "^4.17.1",
+    "ffmpeg": "0.0.4",
     "fs": "^0.0.1-security",
     "major": "0.0.0",
     "morgan": "^1.10.0",
+    "mqtt": "^4.2.6",
     "node-rtsp-stream": "^0.0.9",
     "path": "^0.12.7",
+    "pretty-error": "^3.0.4",
     "superagent": "^6.1.0"
   },
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
